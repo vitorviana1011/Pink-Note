@@ -5,13 +5,13 @@ from domain.entities.event import Event
 from domain.repositories.event_repository import EventRepository
 
 class EventRepositoryImpl(EventRepository):
-    """SQLite implementation of the event repository."""
+    """Implementação SQLite do repositório de eventos."""
     
     def __init__(self, db_connection):
         self.db = db_connection
     
     def get_all_events(self) -> List[Event]:
-        """Retrieve all events."""
+        """Recupera todos os eventos."""
         cursor = self.db.cursor()
         cursor.execute("SELECT id, title, description, date FROM events ORDER BY date")
         
@@ -28,7 +28,7 @@ class EventRepositoryImpl(EventRepository):
         return events
     
     def get_event_by_id(self, event_id: int) -> Optional[Event]:
-        """Retrieve an event by its ID."""
+        """Recupera um evento pelo seu ID."""
         cursor = self.db.cursor()
         cursor.execute(
             "SELECT id, title, description, date FROM events WHERE id = ?",
@@ -47,13 +47,13 @@ class EventRepositoryImpl(EventRepository):
         )
     
     def get_events_by_date(self, event_date: date) -> List[Event]:
-        """Retrieve all events for a specific date."""
+        """Recupera todos os eventos para uma data específica."""
         cursor = self.db.cursor()
         
-        # Convert date to string in ISO format (YYYY-MM-DD)
+        # Converte a data para string no formato ISO (YYYY-MM-DD)
         date_str = event_date.isoformat()
         
-        # Use date() function in SQLite to extract the date part from the datetime string
+        # Usa a função date() do SQLite para extrair a parte da data da string datetime
         cursor.execute(
             "SELECT id, title, description, date FROM events WHERE date(date) = ? ORDER BY date",
             (date_str,)
@@ -72,7 +72,7 @@ class EventRepositoryImpl(EventRepository):
         return events
     
     def add_event(self, event: Event) -> int:
-        """Add a new event and return its ID."""
+        """Adiciona um novo evento e retorna seu ID."""
         cursor = self.db.cursor()
         cursor.execute(
             "INSERT INTO events (title, description, date) VALUES (?, ?, ?)",
@@ -83,7 +83,7 @@ class EventRepositoryImpl(EventRepository):
         return cursor.lastrowid
     
     def update_event(self, event: Event) -> bool:
-        """Update an existing event and return success status."""
+        """Atualiza um evento existente e retorna o status de sucesso."""
         if event.id is None:
             return False
         
@@ -97,7 +97,7 @@ class EventRepositoryImpl(EventRepository):
         return cursor.rowcount > 0
     
     def delete_event(self, event_id: int) -> bool:
-        """Delete an event by its ID and return success status."""
+        """Exclui um evento pelo seu ID e retorna o status de sucesso."""
         cursor = self.db.cursor()
         cursor.execute("DELETE FROM events WHERE id = ?", (event_id,))
         

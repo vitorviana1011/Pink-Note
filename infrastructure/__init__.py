@@ -1,1 +1,1 @@
-# This file makes the infrastructure directory a Python package
+# Este arquivo torna o diretório infrastructure um pacote Python

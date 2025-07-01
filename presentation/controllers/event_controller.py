@@ -8,39 +8,39 @@ from shared.utils.logger import Logger
 from shared.utils.date_utils import DateUtils
 
 class EventController:
-    """Controller for event-related operations in the presentation layer."""
+    """Controlador para operações relacionadas a eventos na camada de apresentação."""
     
     def __init__(self, event_service: EventService):
-        """Initialize the controller with required services.
+        """Inicializa o controlador com os serviços necessários.
         
         Args:
-            event_service: The event service
+            event_service: O serviço de eventos
         """
         self.event_service = event_service
         self.logger = Logger.get_instance()
         self.date_utils = DateUtils()
     
     def get_all_events(self) -> List[Dict[str, Any]]:
-        """Get all events.
+        """Obtém todos os eventos.
         
         Returns:
-            A list of dictionaries representing events
+            Uma lista de dicionários representando os eventos
         """
         try:
             events = self.event_service.get_all_events()
             return [self._event_to_dict(event) for event in events]
         except Exception as e:
-            self.logger.error(f"Error getting all events: {str(e)}")
+            self.logger.error(f"Erro ao obter todos os eventos: {str(e)}")
             return []
     
     def get_event_by_id(self, event_id: int) -> Optional[Dict[str, Any]]:
-        """Get an event by its ID.
+        """Obtém um evento pelo seu ID.
         
         Args:
-            event_id: The event ID
+            event_id: O ID do evento
             
         Returns:
-            A dictionary representing the event, or None if not found
+            Um dicionário representando o evento, ou None se não encontrado
         """
         try:
             event = self.event_service.get_event_by_id(event_id)
@@ -48,185 +48,185 @@ class EventController:
                 return self._event_to_dict(event)
             return None
         except Exception as e:
-            self.logger.error(f"Error getting event {event_id}: {str(e)}")
+            self.logger.error(f"Erro ao obter evento {event_id}: {str(e)}")
             return None
     
     def get_events_by_date(self, event_date: date) -> List[Dict[str, Any]]:
-        """Get all events for a specific date.
+        """Obtém todos os eventos para uma data específica.
         
         Args:
-            event_date: The date
+            event_date: A data
             
         Returns:
-            A list of dictionaries representing events
+            Uma lista de dicionários representando os eventos
         """
         try:
             events = self.event_service.get_events_by_date(event_date)
             return [self._event_to_dict(event) for event in events]
         except Exception as e:
-            self.logger.error(f"Error getting events for date {event_date}: {str(e)}")
+            self.logger.error(f"Erro ao obter eventos para a data {event_date}: {str(e)}")
             return []
     
     def get_events_in_range(self, start_date: date, end_date: date) -> List[Dict[str, Any]]:
-        """Get all events within a date range.
+        """Obtém todos os eventos dentro de um intervalo de datas.
         
         Args:
-            start_date: The start date
-            end_date: The end date
+            start_date: A data inicial
+            end_date: A data final
             
         Returns:
-            A list of dictionaries representing events
+            Uma lista de dicionários representando os eventos
         """
         try:
-            # Create date range
+            # Cria intervalo de datas
             date_range = DateRange(start_date=start_date, end_date=end_date)
             
-            # Get events in range
+            # Obtém eventos no intervalo
             events = self.event_service.get_events_in_range(date_range)
             return [self._event_to_dict(event) for event in events]
         except Exception as e:
-            self.logger.error(f"Error getting events in range {start_date} to {end_date}: {str(e)}")
+            self.logger.error(f"Erro ao obter eventos no intervalo {start_date} a {end_date}: {str(e)}")
             return []
     
     def get_events_for_month(self, year: int, month: int) -> List[Dict[str, Any]]:
-        """Get all events for a specific month.
+        """Obtém todos os eventos para um mês específico.
         
         Args:
-            year: The year
-            month: The month (1-12)
+            year: O ano
+            month: O mês (1-12)
             
         Returns:
-            A list of dictionaries representing events
+            Uma lista de dicionários representando os eventos
         """
         try:
-            # Get the start and end dates for the month
+            # Obtém as datas inicial e final do mês
             start_date, end_date = self.date_utils.get_month_range(year, month)
             
-            # Get events in the month range
+            # Obtém eventos no intervalo do mês
             return self.get_events_in_range(start_date, end_date)
         except Exception as e:
-            self.logger.error(f"Error getting events for month {month}/{year}: {str(e)}")
+            self.logger.error(f"Erro ao obter eventos para o mês {month}/{year}: {str(e)}")
             return []
     
     def get_events_for_week(self, week_date: date) -> List[Dict[str, Any]]:
-        """Get all events for the week containing the specified date.
+        """Obtém todos os eventos para a semana que contém a data especificada.
         
         Args:
-            week_date: A date in the desired week
+            week_date: Uma data da semana desejada
             
         Returns:
-            A list of dictionaries representing events
+            Uma lista de dicionários representando os eventos
         """
         try:
-            # Get the start and end dates for the week
+            # Obtém as datas inicial e final da semana
             start_date, end_date = self.date_utils.get_week_range(week_date)
             
-            # Get events in the week range
+            # Obtém eventos no intervalo da semana
             return self.get_events_in_range(start_date, end_date)
         except Exception as e:
-            self.logger.error(f"Error getting events for week of {week_date}: {str(e)}")
+            self.logger.error(f"Erro ao obter eventos para a semana de {week_date}: {str(e)}")
             return []
     
     def create_event(self, title: str, description: str, event_date: date) -> Optional[Dict[str, Any]]:
-        """Create a new event.
+        """Cria um novo evento.
         
         Args:
-            title: The event title
-            description: The event description
-            event_date: The event date
+            title: O título do evento
+            description: A descrição do evento
+            event_date: A data do evento
             
         Returns:
-            A dictionary representing the created event, or None if creation failed
+            Um dicionário representando o evento criado, ou None se falhar
         """
         try:
-            # Convert date to datetime if needed
+            # Converte para datetime se necessário
             event_datetime = event_date
             if isinstance(event_date, date) and not isinstance(event_date, datetime):
-                # Convert to datetime at midnight
+                # Converte para datetime à meia-noite
                 event_datetime = datetime.combine(event_date, datetime.min.time())
             
-            # Create the event
+            # Cria o evento
             event_id = self.event_service.create_event(title, description, event_datetime)
             if event_id:
                 return self.get_event_by_id(event_id)
             return None
         except Exception as e:
-            self.logger.error(f"Error creating event: {str(e)}")
+            self.logger.error(f"Erro ao criar evento: {str(e)}")
             return None
     
     def update_event(self, event_id: int, title: str, description: str, event_date: date) -> bool:
-        """Update an existing event.
+        """Atualiza um evento existente.
         
         Args:
-            event_id: The event ID
-            title: The new title
-            description: The new description
-            event_date: The new event date
+            event_id: O ID do evento
+            title: O novo título
+            description: A nova descrição
+            event_date: A nova data do evento
             
         Returns:
-            True if the update was successful, False otherwise
+            True se a atualização foi bem-sucedida, False caso contrário
         """
         try:
-            # Convert date to datetime if needed
+            # Converte para datetime se necessário
             event_datetime = event_date
             if isinstance(event_date, date) and not isinstance(event_date, datetime):
-                # Convert to datetime at midnight
+                # Converte para datetime à meia-noite
                 event_datetime = datetime.combine(event_date, datetime.min.time())
             
             return self.event_service.update_event(event_id, title, description, event_datetime)
         except Exception as e:
-            self.logger.error(f"Error updating event {event_id}: {str(e)}")
+            self.logger.error(f"Erro ao atualizar evento {event_id}: {str(e)}")
             return False
     
     def delete_event(self, event_id: int) -> bool:
-        """Delete an event.
+        """Exclui um evento.
         
         Args:
-            event_id: The event ID
+            event_id: O ID do evento
             
         Returns:
-            True if the deletion was successful, False otherwise
+            True se a exclusão foi bem-sucedida, False caso contrário
         """
         try:
             return self.event_service.delete_event(event_id)
         except Exception as e:
-            self.logger.error(f"Error deleting event {event_id}: {str(e)}")
+            self.logger.error(f"Erro ao excluir evento {event_id}: {str(e)}")
             return False
     
     def get_dates_with_events(self, year: int, month: int) -> List[str]:
-        """Get all dates in a month that have events.
+        """Obtém todas as datas de um mês que possuem eventos.
         
         Args:
-            year: The year
-            month: The month (1-12)
+            year: O ano
+            month: O mês (1-12)
             
         Returns:
-            A list of date strings in ISO format (YYYY-MM-DD)
+            Uma lista de strings de datas no formato ISO (YYYY-MM-DD)
         """
         try:
-            # Get the start and end dates for the month
+            # Obtém as datas inicial e final do mês
             start_date, end_date = self.date_utils.get_month_range(year, month)
             
-            # Create date range
+            # Cria intervalo de datas
             date_range = DateRange(start_date=start_date, end_date=end_date)
             
-            # Get dates with events
+            # Obtém datas com eventos
             dates = self.event_service.get_dates_with_events(date_range)
             
-            # Convert to ISO format strings
+            # Converte para strings no formato ISO
             return [date.isoformat() for date in dates]
         except Exception as e:
-            self.logger.error(f"Error getting dates with events for {month}/{year}: {str(e)}")
+            self.logger.error(f"Erro ao obter datas com eventos para {month}/{year}: {str(e)}")
             return []
     
     def _event_to_dict(self, event: Event) -> Dict[str, Any]:
-        """Convert an Event entity to a dictionary.
+        """Converte uma entidade Event para um dicionário.
         
         Args:
-            event: The Event entity
+            event: A entidade Event
             
         Returns:
-            A dictionary representation of the event
+            Um dicionário representando o evento
         """
         return {
             'id': event.id,

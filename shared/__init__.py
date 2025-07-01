@@ -1,1 +1,1 @@
-# This file makes the shared directory a Python package
+# Este arquivo torna o diretório shared um pacote Python

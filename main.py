@@ -8,48 +8,48 @@ from presentation.main_window import MainWindow
 from shared.utils.logger import Logger
 from shared.constants import APP_NAME, APP_VERSION
 
-# Set up high DPI scaling
+# Configurações para suporte a DPI alto
 QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
 QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
 
 def exception_hook(exc_type, exc_value, exc_traceback):
-    """Custom exception hook to log unhandled exceptions.
+    """Hook de exceção personalizado para registrar exceções não tratadas.
     
     Args:
-        exc_type: Exception type
-        exc_value: Exception value
-        exc_traceback: Exception traceback
+        exc_type: Tipo da exceção
+        exc_value: Valor da exceção
+        exc_traceback: Traceback da exceção
     """
-    # Log the exception
+    # Registra a exceção
     logger = Logger.get_instance()
-    logger.error(f"Unhandled exception: {exc_value}\n{''.join(traceback.format_exception(exc_type, exc_value, exc_traceback))}")
+    logger.error(f"Exceção não tratada: {exc_value}\n{''.join(traceback.format_exception(exc_type, exc_value, exc_traceback))}")
     
-    # Format the traceback
+    # Formata o traceback
     tb_lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
     tb_text = ''.join(tb_lines)
     
-    # Show error message
+    # Exibe mensagem de erro
     QMessageBox.critical(
         None,
-        "Application Error",
-        f"An unexpected error occurred:\n\n{exc_value}\n\n"
-        f"Please report this error with the following information:\n\n{tb_text}"
+        "Erro na Aplicação",
+        f"Ocorreu um erro inesperado:\n\n{exc_value}\n\n"
+        f"Por favor, reporte este erro com as seguintes informações:\n\n{tb_text}"
     )
     
-    # Call the original exception hook
+    # Chama o hook de exceção original
     sys.__excepthook__(exc_type, exc_value, exc_traceback)
 
 def main():
-    """Main application entry point."""
-    # Set up exception hook
+    """Ponto de entrada principal da aplicação."""
+    # Define o hook de exceção
     sys.excepthook = exception_hook
     
-    # Create application
+    # Cria a aplicação
     app = QApplication(sys.argv)
     app.setApplicationName(APP_NAME)
     app.setApplicationVersion(APP_VERSION)
     
-    # Load application stylesheet
+    # Carrega o stylesheet da aplicação
     style_file = QFile(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'assets', 'style.qss'))
     if style_file.exists():
         style_file.open(QFile.ReadOnly | QFile.Text)
@@ -57,11 +57,11 @@ def main():
         app.setStyleSheet(stream.readAll())
         style_file.close()
     
-    # Create main window
+    # Cria a janela principal
     window = MainWindow()
     window.show()
     
-    # Run application
+    # Executa a aplicação
     return app.exec_()
 
 if __name__ == "__main__":

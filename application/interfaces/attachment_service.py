@@ -4,34 +4,34 @@ from typing import List, Optional
 from domain.entities.attachment import Attachment
 
 class AttachmentService(ABC):
-    """Interface for attachment-related use cases."""
+    """Interface para casos de uso relacionados a anexos."""
     
     @abstractmethod
     def get_attachments_for_note(self, note_id: int) -> List[Attachment]:
-        """Get all attachments for a specific note."""
+        """Obtém todos os anexos de uma nota específica."""
         pass
     
     @abstractmethod
     def get_attachment_by_id(self, attachment_id: int) -> Optional[Attachment]:
-        """Get an attachment by its ID."""
+        """Obtém um anexo pelo seu ID."""
         pass
     
     @abstractmethod
     def add_attachment(self, note_id: int, file_path: str) -> int:
-        """Add a new attachment to a note and return its ID."""
+        """Adiciona um novo anexo a uma nota e retorna seu ID."""
         pass
     
     @abstractmethod
     def delete_attachment(self, attachment_id: int) -> bool:
-        """Delete an attachment by its ID and return success status."""
+        """Exclui um anexo pelo seu ID e retorna o status de sucesso."""
         pass
     
     @abstractmethod
     def get_attachment_path(self, attachment_id: int) -> Optional[str]:
-        """Get the file system path for an attachment."""
+        """Obtém o caminho do sistema de arquivos para um anexo."""
         pass
     
     @abstractmethod
     def open_attachment(self, attachment_id: int) -> bool:
-        """Open an attachment with the system's default application."""
+        """Abre um anexo com o aplicativo padrão do sistema."""
         pass

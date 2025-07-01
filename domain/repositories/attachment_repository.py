@@ -4,29 +4,29 @@ from typing import List, Optional
 from domain.entities.attachment import Attachment
 
 class AttachmentRepository(ABC):
-    """Interface for attachment repository operations."""
+    """Interface para operações do repositório de anexos."""
     
     @abstractmethod
     def get_attachments_for_note(self, note_id: int) -> List[Attachment]:
-        """Retrieve all attachments for a specific note."""
+        """Recupera todos os anexos de uma nota específica."""
         pass
     
     @abstractmethod
     def get_attachment_by_id(self, attachment_id: int) -> Optional[Attachment]:
-        """Retrieve an attachment by its ID."""
+        """Recupera um anexo pelo seu ID."""
         pass
     
     @abstractmethod
     def add_attachment(self, attachment: Attachment) -> int:
-        """Add a new attachment and return its ID."""
+        """Adiciona um novo anexo e retorna seu ID."""
         pass
     
     @abstractmethod
     def delete_attachment(self, attachment_id: int) -> bool:
-        """Delete an attachment by its ID and return success status."""
+        """Exclui um anexo pelo seu ID e retorna o status de sucesso."""
         pass
     
     @abstractmethod
     def get_attachment_path(self, attachment_id: int) -> Optional[str]:
-        """Get the file system path for an attachment."""
+        """Obtém o caminho do sistema de arquivos para um anexo."""
         pass

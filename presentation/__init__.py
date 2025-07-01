@@ -1,1 +1,1 @@
-# This file makes the presentation directory a Python package
+# Este arquivo torna o diretório presentation um pacote Python

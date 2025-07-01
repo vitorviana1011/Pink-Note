@@ -1,1 +1,1 @@
-# Application layer package
+# Este arquivo torna o diretório application um pacote Python

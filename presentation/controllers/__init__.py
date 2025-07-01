@@ -1,3 +1,5 @@
+# Este arquivo torna o diretório controllers um pacote Python
+
 from presentation.controllers.note_controller import NoteController
 from presentation.controllers.folder_controller import FolderController
 from presentation.controllers.event_controller import EventController

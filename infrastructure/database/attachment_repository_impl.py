@@ -6,17 +6,17 @@ from domain.entities.attachment import Attachment
 from domain.repositories.attachment_repository import AttachmentRepository
 
 class AttachmentRepositoryImpl(AttachmentRepository):
-    """SQLite implementation of the attachment repository."""
+    """Implementação SQLite do repositório de anexos."""
     
     def __init__(self, db_connection):
         self.db = db_connection
     
     def get_attachments_for_note(self, note_id: int) -> List[Attachment]:
-        """Retrieve all attachments for a specific note."""
+        """Recupera todos os anexos de uma nota específica."""
         cursor = self.db.cursor()
         
         if note_id is None:
-            # Get all attachments if note_id is None
+            # Obtém todos os anexos se note_id for None
             cursor.execute(
                 "SELECT id, note_id, file_path, file_name, file_type, created_at FROM attachments ORDER BY created_at DESC"
             )
@@ -41,7 +41,7 @@ class AttachmentRepositoryImpl(AttachmentRepository):
         return attachments
     
     def get_attachment_by_id(self, attachment_id: int) -> Optional[Attachment]:
-        """Retrieve an attachment by its ID."""
+        """Recupera um anexo pelo seu ID."""
         cursor = self.db.cursor()
         cursor.execute(
             "SELECT id, note_id, file_path, file_name, file_type, created_at FROM attachments WHERE id = ?",
@@ -62,7 +62,7 @@ class AttachmentRepositoryImpl(AttachmentRepository):
         )
     
     def add_attachment(self, attachment: Attachment) -> int:
-        """Add a new attachment and return its ID."""
+        """Adiciona um novo anexo e retorna seu ID."""
         cursor = self.db.cursor()
         cursor.execute(
             "INSERT INTO attachments (note_id, file_path, file_name, file_type, created_at) VALUES (?, ?, ?, ?, ?)",
@@ -79,10 +79,10 @@ class AttachmentRepositoryImpl(AttachmentRepository):
         return cursor.lastrowid
     
     def delete_attachment(self, attachment_id: int) -> bool:
-        """Delete an attachment by its ID and return success status."""
+        """Exclui um anexo pelo seu ID e retorna o status de sucesso."""
         cursor = self.db.cursor()
         
-        # Get the file path to delete the physical file
+        # Obtém o caminho do arquivo para excluir o arquivo físico
         cursor.execute("SELECT file_path FROM attachments WHERE id = ?", (attachment_id,))
         row = cursor.fetchone()
         if row is None:
@@ -90,22 +90,22 @@ class AttachmentRepositoryImpl(AttachmentRepository):
         
         file_path = row[0]
         
-        # Delete the attachment record
+        # Exclui o registro do anexo
         cursor.execute("DELETE FROM attachments WHERE id = ?", (attachment_id,))
         
-        # Delete the physical file if it exists
+        # Exclui o arquivo físico se existir
         if os.path.exists(file_path):
             try:
                 os.remove(file_path)
             except OSError:
-                # Log the error but continue with the database deletion
+                # Apenas registra o erro e continua com a exclusão no banco
                 pass
         
         self.db.commit()
         return cursor.rowcount > 0
     
     def get_attachment_path(self, attachment_id: int) -> Optional[str]:
-        """Get the file system path for an attachment."""
+        """Obtém o caminho do sistema de arquivos para um anexo."""
         cursor = self.db.cursor()
         cursor.execute("SELECT file_path FROM attachments WHERE id = ?", (attachment_id,))
         

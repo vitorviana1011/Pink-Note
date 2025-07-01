@@ -3,71 +3,71 @@ import json
 from typing import Dict, Any, Optional
 
 class Config:
-    """Configuration manager for the application.
+    """Gerenciador de configuração da aplicação.
     
-    This class is responsible for loading, accessing, and managing
-    application configuration settings.
+    Esta classe é responsável por carregar, acessar e gerenciar
+    as configurações da aplicação.
     """
     
     def __init__(self, config_file_path: Optional[str] = None):
-        """Initialize the configuration manager.
+        """Inicializa o gerenciador de configuração.
         
         Args:
-            config_file_path: Path to the configuration file (optional)
+            config_file_path: Caminho para o arquivo de configuração (opcional)
         """
         self.config: Dict[str, Any] = {}
         self.config_file_path = config_file_path
         
-        # Default configuration values
+        # Valores padrão de configuração
         self._set_defaults()
         
-        # Load configuration from file if provided
+        # Carrega configuração do arquivo se fornecido
         if config_file_path and os.path.exists(config_file_path):
             self._load_from_file(config_file_path)
     
     def _set_defaults(self):
-        """Set default configuration values."""
-        # Get the application's base directory
+        """Define valores padrão de configuração."""
+        # Obtém o diretório base da aplicação
         base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
         
-        # Database settings
+        # Configurações do banco de dados
         self.config['db_path'] = os.path.join(base_dir, 'data', 'notepad.db')
         
-        # Storage settings
+        # Configurações de armazenamento
         self.config['storage_path'] = os.path.join(base_dir, 'data', 'attachments')
         
-        # UI settings
+        # Configurações de UI
         self.config['theme'] = 'light'
         self.config['font_size'] = 12
         
-        # Ensure data directories exist
+        # Garante que os diretórios de dados existam
         os.makedirs(os.path.dirname(self.config['db_path']), exist_ok=True)
         os.makedirs(self.config['storage_path'], exist_ok=True)
     
     def _load_from_file(self, file_path: str):
-        """Load configuration from a JSON file.
+        """Carrega configuração de um arquivo JSON.
         
         Args:
-            file_path: Path to the configuration file
+            file_path: Caminho para o arquivo de configuração
         """
         try:
             with open(file_path, 'r') as f:
                 file_config = json.load(f)
-                # Update the configuration with values from the file
+                # Atualiza a configuração com valores do arquivo
                 self.config.update(file_config)
         except (json.JSONDecodeError, IOError) as e:
             from shared.utils.logger import Logger
             logger = Logger.get_instance()
-            logger.error(f"Error loading configuration from {file_path}: {e}")
+            logger.error(f"Erro ao carregar configuração de {file_path}: {e}")
     
     def save_to_file(self, file_path: str):
-        """Save the current configuration to a JSON file.
+        """Salva a configuração atual em um arquivo JSON.
         
         Args:
-            file_path: Path where to save the configuration
+            file_path: Caminho onde salvar a configuração
         """
         try:
-            # Ensure the directory exists
+            # Garante que o diretório exista
             os.makedirs(os.path.dirname(file_path), exist_ok=True)
             
             with open(file_path, 'w') as f:
@@ -75,41 +75,41 @@ class Config:
         except IOError as e:
             from shared.utils.logger import Logger
             logger = Logger.get_instance()
-            logger.error(f"Error saving configuration to {file_path}: {e}")
+            logger.error(f"Erro ao salvar configuração em {file_path}: {e}")
     
     def get(self, key: str, default: Any = None) -> Any:
-        """Get a configuration value.
+        """Obtém um valor de configuração.
         
         Args:
-            key: The configuration key
-            default: Default value if the key doesn't exist
+            key: A chave de configuração
+            default: Valor padrão se a chave não existir
             
         Returns:
-            The configuration value or the default
+            O valor da configuração ou o padrão
         """
         return self.config.get(key, default)
     
     def set(self, key: str, value: Any):
-        """Set a configuration value.
+        """Define um valor de configuração.
         
         Args:
-            key: The configuration key
-            value: The value to set
+            key: A chave de configuração
+            value: O valor a ser definido
         """
         self.config[key] = value
     
     def get_all(self) -> Dict[str, Any]:
-        """Get all configuration values.
+        """Obtém todos os valores de configuração.
         
         Returns:
-            A dictionary with all configuration values
+            Um dicionário com todos os valores de configuração
         """
         return self.config.copy()
         
     def load(self):
-        """Load configuration from the file specified during initialization.
+        """Carrega configuração do arquivo especificado na inicialização.
         
-        If no file path was provided during initialization, this method does nothing.
+        Se nenhum caminho de arquivo foi fornecido na inicialização, este método não faz nada.
         """
         if self.config_file_path and os.path.exists(self.config_file_path):
             self._load_from_file(self.config_file_path)

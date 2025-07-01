@@ -8,155 +8,155 @@ from presentation.components.base_component import BaseComponent
 from shared.utils import StringUtils
 
 class SearchComponent(BaseComponent):
-    """Component for searching notes."""
+    """Componente para busca de notas."""
     
-    # Define signals
-    search_performed = pyqtSignal(list)  # Emitted when a search is performed (results)
-    note_selected = pyqtSignal(int)      # Emitted when a note is selected (note_id)
+    # Define sinais
+    search_performed = pyqtSignal(list)  # Emitido quando uma busca é realizada (resultados)
+    note_selected = pyqtSignal(int)      # Emitido quando uma nota é selecionada (note_id)
     
     def __init__(self, parent=None, controllers=None):
-        """Initialize the component.
+        """Inicializa o componente.
         
         Args:
-            parent: The parent widget
-            controllers: A dictionary of controllers
+            parent: O widget pai
+            controllers: Um dicionário de controladores
         """
         super().__init__(parent, controllers)
         
-        # Search results
+        # Resultados da busca
         self.search_results = []
     
     def _init_ui(self):
-        """Initialize the UI components."""
-        # Create main layout
+        """Inicializa os componentes da interface."""
+        # Cria layout principal
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(10, 10, 10, 10)
         
-        # Search input layout
+        # Layout da entrada de busca
         search_layout = QHBoxLayout()
         
-        # Search input
+        # Entrada de busca
         self.search_input = QLineEdit(self)
-        self.search_input.setPlaceholderText("Search notes...")
+        self.search_input.setPlaceholderText("Buscar notas...")
         self.search_input.setStyleSheet("padding: 5px;")
         search_layout.addWidget(self.search_input)
         
-        # Search button
-        self.search_button = QPushButton("Search", self)
+        # Botão de busca
+        self.search_button = QPushButton("Buscar", self)
         search_layout.addWidget(self.search_button)
         
         main_layout.addLayout(search_layout)
         
-        # Results label
-        self.results_label = QLabel("Enter a search term above", self)
+        # Rótulo de resultados
+        self.results_label = QLabel("Digite um termo de busca acima", self)
         self.results_label.setStyleSheet("color: gray; font-style: italic; margin-top: 5px;")
         main_layout.addWidget(self.results_label)
         
-        # Results list
+        # Lista de resultados
         self.results_list = QListWidget(self)
         self.results_list.setStyleSheet("margin-top: 5px;")
         main_layout.addWidget(self.results_list)
     
     def _connect_signals(self):
-        """Connect signals and slots."""
-        # Connect search button
+        """Conecta sinais e slots."""
+        # Conecta botão de busca
         self.search_button.clicked.connect(self._perform_search)
         
-        # Connect search input enter key
+        # Conecta tecla Enter da entrada de busca
         self.search_input.returnPressed.connect(self._perform_search)
         
-        # Connect results list
+        # Conecta lista de resultados
         self.results_list.itemClicked.connect(self._on_result_clicked)
     
     def _perform_search(self):
-        """Perform the search using the current input."""
-        # Get search term
+        """Executa a busca usando a entrada atual."""
+        # Obtém o termo de busca
         search_term = self.search_input.text().strip()
         
         if not search_term:
-            self.results_label.setText("Enter a search term above")
+            self.results_label.setText("Digite um termo de busca acima")
             self.results_list.clear()
             self.search_results = []
             return
         
-        # Perform search
+        # Realiza a busca
         note_controller = self.controllers.get('note_controller')
         if note_controller:
-            # Perform search with default options
-            # Search in both title and content, case-insensitive, all folders
+            # Realiza a busca com opções padrão
+            # Busca tanto no título quanto no conteúdo, sem diferenciar maiúsculas de minúsculas, em todas as pastas
             self.search_results = note_controller.search_notes(
                 search_term=search_term,
-                folder_ids=None,  # Search in all folders
+                folder_ids=None,  # Busca em todas as pastas
                 include_title=True,
                 include_content=True,
                 case_sensitive=False
             )
             
-            # Update results label
+            # Atualiza o rótulo de resultados
             count = len(self.search_results)
             if count == 0:
-                self.results_label.setText(f"No results found for '{search_term}'")
+                self.results_label.setText(f"Nenhum resultado encontrado para '{search_term}'")
             elif count == 1:
-                self.results_label.setText(f"1 result found for '{search_term}'")
+                self.results_label.setText(f"1 resultado encontrado para '{search_term}'")
             else:
-                self.results_label.setText(f"{count} results found for '{search_term}'")
+                self.results_label.setText(f"{count} resultados encontrados para '{search_term}'")
             
-            # Update results list
+            # Atualiza a lista de resultados
             self._update_results_list()
             
-            # Emit signal
+            # Emite sinal
             self.search_performed.emit(self.search_results)
     
     def _update_results_list(self):
-        """Update the results list with the current search results."""
-        # Clear the list
+        """Atualiza a lista de resultados com os resultados da busca atual."""
+        # Limpa a lista
         self.results_list.clear()
         
-        # Add results to the list
+        # Adiciona os resultados à lista
         for result in self.search_results:
             self._add_result_to_list(result)
     
     def _add_result_to_list(self, result: Dict[str, Any]):
-        """Add a search result to the list.
+        """Adiciona um resultado da busca à lista.
         
         Args:
-            result: The search result data
+            result: Os dados do resultado da busca
         """
-        # Create list item
+        # Cria item da lista
         item = QListWidgetItem()
         
-        # Set item text
-        title = result.get('title', 'Untitled')
+        # Define o texto do item
+        title = result.get('title', 'Sem título')
         folder_name = result.get('folder_name', '')
         
-        # Create display text
+        # Cria texto de exibição
         display_text = title
         if folder_name:
-            display_text += f" (in {folder_name})"
+            display_text += f" (na {folder_name})"
         
         item.setText(display_text)
         
-        # Store note ID as user data
+        # Armazena o ID da nota como dado do usuário
         item.setData(Qt.UserRole, result.get('id'))
         
-        # Add item to the list
+        # Adiciona o item à lista
         self.results_list.addItem(item)
     
     def _on_result_clicked(self, item: QListWidgetItem):
-        """Handle result item click event.
+        """Manipula o evento de clique em um item de resultado.
         
         Args:
-            item: The clicked item
+            item: O item clicado
         """
-        # Get note ID
+        # Obtém o ID da nota
         note_id = item.data(Qt.UserRole)
         
-        # Emit signal
+        # Emite sinal
         self.note_selected.emit(note_id)
     
     def clear_search(self):
-        """Clear the search input and results."""
+        """Limpa a entrada de busca e os resultados."""
         self.search_input.clear()
         self.results_list.clear()
-        self.results_label.setText("Enter a search term above")
+        self.results_label.setText("Digite um termo de busca acima")
         self.search_results = []

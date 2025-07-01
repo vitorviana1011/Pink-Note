@@ -4,30 +4,30 @@ from typing import Iterator, List
 
 @dataclass(frozen=True)
 class DateRange:
-    """Value object representing a range of dates."""
+    """Objeto de valor que representa um intervalo de datas."""
     start_date: date
     end_date: date
     
     def __post_init__(self):
-        """Validate that start_date is before or equal to end_date."""
+        """Valida se start_date é anterior ou igual a end_date."""
         if self.start_date > self.end_date:
-            raise ValueError("start_date must be before or equal to end_date")
+            raise ValueError("start_date deve ser anterior ou igual a end_date")
     
     def contains(self, check_date: date) -> bool:
-        """Check if a date is within this range."""
+        """Verifica se uma data está dentro deste intervalo."""
         return self.start_date <= check_date <= self.end_date
     
     def days(self) -> int:
-        """Get the number of days in this range."""
+        """Obtém o número de dias neste intervalo."""
         return (self.end_date - self.start_date).days + 1
     
     def iterate_days(self) -> Iterator[date]:
-        """Iterate through all days in this range."""
+        """Itera por todos os dias neste intervalo."""
         current = self.start_date
         while current <= self.end_date:
             yield current
             current += timedelta(days=1)
     
     def to_list(self) -> List[date]:
-        """Convert the range to a list of dates."""
+        """Converte o intervalo para uma lista de datas."""
         return list(self.iterate_days())

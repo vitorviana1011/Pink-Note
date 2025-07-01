@@ -11,14 +11,14 @@ from presentation.components.base_component import BaseComponent
 from shared.utils import DateUtils
 
 class EventDialog(QDialog):
-    """Dialog for creating and editing events."""
+    """Diálogo para criar e editar eventos."""
     
     def __init__(self, parent=None, event=None):
-        """Initialize the dialog.
+        """Inicializa o diálogo.
         
         Args:
-            parent: The parent widget
-            event: The event data (optional, for editing)
+            parent: O widget pai
+            event: Os dados do evento (opcional, para edição)
         """
         super().__init__(parent)
         
@@ -26,22 +26,22 @@ class EventDialog(QDialog):
         self.init_ui()
     
     def init_ui(self):
-        """Initialize the UI components."""
-        # Set dialog properties
-        self.setWindowTitle("Event" if self.event else "New Event")
+        """Inicializa os componentes da interface."""
+        # Define propriedades do diálogo
+        self.setWindowTitle("Evento" if self.event else "Novo Evento")
         self.setMinimumWidth(400)
         
-        # Create layout
+        # Cria layout
         layout = QVBoxLayout(self)
         form_layout = QFormLayout()
         
-        # Title input
+        # Entrada de título
         self.title_input = QLineEdit(self)
         if self.event:
             self.title_input.setText(self.event.get('title', ''))
-        form_layout.addRow("Title:", self.title_input)
+        form_layout.addRow("Título:", self.title_input)
         
-        # Date input
+        # Entrada de data
         self.date_input = QDateEdit(self)
         self.date_input.setCalendarPopup(True)
         if self.event and 'date' in self.event:
@@ -49,44 +49,44 @@ class EventDialog(QDialog):
             self.date_input.setDate(QDate(event_date.year, event_date.month, event_date.day))
         else:
             self.date_input.setDate(QDate.currentDate())
-        form_layout.addRow("Date:", self.date_input)
+        form_layout.addRow("Data:", self.date_input)
         
-        # Time input
+        # Entrada de hora
         self.time_input = QTimeEdit(self)
         if self.event and 'time' in self.event:
             event_time = DateUtils.parse_time(self.event['time'])
             self.time_input.setTime(QTime(event_time.hour, event_time.minute))
         else:
             self.time_input.setTime(QTime.currentTime())
-        form_layout.addRow("Time:", self.time_input)
+        form_layout.addRow("Hora:", self.time_input)
         
-        # Description input
+        # Entrada de descrição
         self.description_input = QTextEdit(self)
         if self.event:
             self.description_input.setText(self.event.get('description', ''))
-        form_layout.addRow("Description:", self.description_input)
+        form_layout.addRow("Descrição:", self.description_input)
         
         layout.addLayout(form_layout)
         
-        # Buttons
+        # Botões
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
         layout.addWidget(button_box)
     
     def get_event_data(self) -> Dict[str, Any]:
-        """Get the event data from the dialog inputs.
+        """Obtém os dados do evento a partir das entradas do diálogo.
         
         Returns:
-            A dictionary with the event data
+            Um dicionário com os dados do evento
         """
-        # Get values from inputs
+        # Obtém valores das entradas
         title = self.title_input.text().strip()
         date = self.date_input.date().toString(Qt.ISODate)
         time = self.time_input.time().toString("hh:mm")
         description = self.description_input.toPlainText().strip()
         
-        # Create event data
+        # Cria dados do evento
         event_data = {
             'title': title,
             'date': date,
@@ -94,46 +94,46 @@ class EventDialog(QDialog):
             'description': description
         }
         
-        # Add ID if editing
+        # Adiciona ID se estiver editando
         if self.event and 'id' in self.event:
             event_data['id'] = self.event['id']
         
         return event_data
 
 class CalendarComponent(BaseComponent):
-    """Component for displaying and managing a calendar with events."""
+    """Componente para exibir e gerenciar um calendário com eventos."""
     
-    # Define signals
-    date_selected = pyqtSignal(QDate)  # Emitted when a date is selected
-    event_created = pyqtSignal(int)    # Emitted when an event is created (event_id)
-    event_updated = pyqtSignal(int)    # Emitted when an event is updated (event_id)
-    event_deleted = pyqtSignal(int)    # Emitted when an event is deleted (event_id)
+    # Define sinais
+    date_selected = pyqtSignal(QDate)  # Emitido quando uma data é selecionada
+    event_created = pyqtSignal(int)    # Emitido quando um evento é criado (event_id)
+    event_updated = pyqtSignal(int)    # Emitido quando um evento é atualizado (event_id)
+    event_deleted = pyqtSignal(int)    # Emitido quando um evento é deletado (event_id)
     
     def __init__(self, parent=None, controllers=None):
-        """Initialize the component.
+        """Inicializa o componente.
         
         Args:
-            parent: The parent widget
-            controllers: A dictionary of controllers
+            parent: O widget pai
+            controllers: Um dicionário de controladores
         """
         super().__init__(parent, controllers)
         
-        # Current date
+        # Data atual
         self.current_date = QDate.currentDate()
         
-        # Event data
+        # Dados dos eventos
         self.events_by_date = {}
     
     def _init_ui(self):
-        """Initialize the UI components."""
-        # Create main layout
+        """Inicializa os componentes da interface."""
+        # Cria layout principal
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(10, 10, 10, 10)
         
-        # Calendar header
+        # Cabeçalho do calendário
         header_layout = QHBoxLayout()
         
-        # Month navigation
+        # Navegação entre meses
         self.prev_month_btn = QPushButton("<", self)
         self.prev_month_btn.setFixedWidth(30)
         header_layout.addWidget(self.prev_month_btn)
@@ -149,7 +149,7 @@ class CalendarComponent(BaseComponent):
         
         main_layout.addLayout(header_layout)
         
-        # Calendar widget
+        # Widget do calendário
         self.calendar = QCalendarWidget(self)
         self.calendar.setGridVisible(True)
         self.calendar.setVerticalHeaderFormat(QCalendarWidget.NoVerticalHeader)
@@ -157,17 +157,17 @@ class CalendarComponent(BaseComponent):
         self.calendar.setFixedHeight(300)  # Altura fixa para o calendário
         main_layout.addWidget(self.calendar)
         
-        # Events section
+        # Seção de eventos
         events_layout = QVBoxLayout()
         
-        # Events header
+        # Cabeçalho dos eventos
         events_header = QHBoxLayout()
-        self.events_label = QLabel("Events", self)
+        self.events_label = QLabel("Eventos", self)
         self.events_label.setStyleSheet("font-weight: bold;")
         events_header.addWidget(self.events_label)
         
-        # Add event button
-        self.add_event_btn = QPushButton("Add Event", self)
+        # Botão para adicionar evento
+        self.add_event_btn = QPushButton("Adicionar Evento", self)
         events_header.addWidget(self.add_event_btn)
         events_header.addStretch()
         events_layout.addLayout(events_header)
@@ -194,88 +194,88 @@ class CalendarComponent(BaseComponent):
         
         main_layout.addLayout(events_layout)
         
-        # Update UI with current date
+        # Atualiza a interface com a data atual
         self._update_month_label()
     
     def _connect_signals(self):
-        """Connect signals and slots."""
-        # Connect calendar signals
+        """Conecta sinais e slots."""
+        # Conecta sinais do calendário
         self.calendar.clicked.connect(self._on_date_clicked)
         self.calendar.currentPageChanged.connect(self._on_month_changed)
         
-        # Connect navigation buttons
+        # Conecta botões de navegação
         self.prev_month_btn.clicked.connect(self._on_prev_month)
         self.next_month_btn.clicked.connect(self._on_next_month)
         
-        # Connect add event button
+        # Conecta botão de adicionar evento
         self.add_event_btn.clicked.connect(self._add_event)
     
     def refresh(self):
-        """Refresh the calendar display."""
-        # Load events for the current month
+        """Atualiza a exibição do calendário."""
+        # Carrega eventos do mês atual
         self._load_events_for_month()
         
-        # Update the calendar display
+        # Atualiza a exibição do calendário
         self._update_calendar_display()
         
-        # Update events for the selected date
+        # Atualiza eventos para a data selecionada
         self._update_events_display()
     
     def _update_month_label(self):
-        """Update the month label with the current month and year."""
+        """Atualiza o rótulo do mês com o mês e ano atuais."""
         month_year = self.calendar.monthShown(), self.calendar.yearShown()
         month_name = QDate(month_year[1], month_year[0], 1).toString("MMMM yyyy")
         self.month_label.setText(month_name)
         self.month_label.setStyleSheet("font-size: 14pt; font-weight: bold; color: #333;")
     
     def _on_date_clicked(self, date: QDate):
-        """Handle date click event.
+        """Manipula o evento de clique na data.
         
         Args:
-            date: The clicked date
+            date: A data clicada
         """
         self.current_date = date
         self._update_events_display()
         self.date_selected.emit(date)
     
     def _on_month_changed(self, year: int, month: int):
-        """Handle month change event.
+        """Manipula o evento de mudança de mês.
         
         Args:
-            year: The new year
-            month: The new month
+            year: O novo ano
+            month: O novo mês
         """
         self._update_month_label()
         self._load_events_for_month()
         self._update_calendar_display()
     
     def _on_prev_month(self):
-        """Navigate to the previous month."""
+        """Navega para o mês anterior."""
         self.calendar.showPreviousMonth()
     
     def _on_next_month(self):
-        """Navigate to the next month."""
+        """Navega para o próximo mês."""
         self.calendar.showNextMonth()
     
     def _load_events_for_month(self):
-        """Load events for the current month."""
+        """Carrega eventos para o mês atual."""
         event_controller = self.controllers.get('event_controller')
         if not event_controller:
             return
         
-        # Get the current month and year
+        # Obtém o mês e ano atuais
         month = self.calendar.monthShown()
         year = self.calendar.yearShown()
         
-        # Get events for the month
+        # Obtém eventos para o mês
         events = event_controller.get_events_for_month(year, month)
         
-        # Group events by date
+        # Agrupa eventos por data
         self.events_by_date = {}
         for event in events:
             date_str = event.get('date')
             if date_str:
-                # Normalize date string by removing time part if present
+                # Normaliza a string da data removendo a parte da hora, se presente
                 if 'T' in date_str:
                     date_str = date_str.split('T')[0]
                 
@@ -284,51 +284,51 @@ class CalendarComponent(BaseComponent):
                 self.events_by_date[date_str].append(event)
     
     def _update_calendar_display(self):
-        """Update the calendar display with event indicators."""
-        # Get dates with events
+        """Atualiza a exibição do calendário com indicadores de eventos."""
+        # Obtém datas com eventos
         event_controller = self.controllers.get('event_controller')
         if not event_controller:
             return
         
-        # Get the current month and year
+        # Obtém o mês e ano atuais
         month = self.calendar.monthShown()
         year = self.calendar.yearShown()
         
-        # Get dates with events
+        # Obtém datas com eventos
         dates_with_events = event_controller.get_dates_with_events(year, month)
         
-        # Clear all date formats
+        # Limpa todos os formatos de data
         self.calendar.setDateTextFormat(QDate(), QTextCharFormat())
         
-        # Set format for dates with events
+        # Define formato para datas com eventos
         event_format = QTextCharFormat()
         event_format.setBackground(QColor(200, 230, 255))
         event_format.setForeground(QColor(0, 0, 150))
-        event_format.setFontWeight(700)  # Bold font
+        event_format.setFontWeight(700)  # Fonte em negrito
         
         for date_str in dates_with_events:
             date = QDate.fromString(date_str, Qt.ISODate)
             self.calendar.setDateTextFormat(date, event_format)
     
     def _update_events_display(self):
-        """Update the events display for the selected date."""
-        # Clear the events container
+        """Atualiza a exibição dos eventos para a data selecionada."""
+        # Limpa o contêiner de eventos
         self._clear_events_container()
         
-        # Get the current date string
+        # Obtém a string da data atual
         date_str = self.current_date.toString(Qt.ISODate)
         
-        # Get events for the date
+        # Obtém eventos para a data
         events = self.events_by_date.get(date_str, [])
         
         if not events:
-            # Show no events message
-            label = QLabel("📅 No events for this date", self.events_container)
+            # Exibe mensagem de ausência de eventos
+            label = QLabel("📅 Sem eventos para esta data", self.events_container)
             label.setStyleSheet("color: gray; font-style: italic; padding: 10px; text-align: center;")
             label.setAlignment(Qt.AlignCenter)
             self.events_container.layout().insertWidget(0, label)
         else:
-            # Add event widgets
+            # Adiciona widgets de eventos
             for event in events:
                 self._add_event_widget(event)
         
@@ -336,8 +336,8 @@ class CalendarComponent(BaseComponent):
         self.events_container.layout().addStretch()
     
     def _clear_events_container(self):
-        """Clear the events container."""
-        # Remove all widgets from the layout
+        """Limpa o contêiner de eventos."""
+        # Remove todos os widgets do layout
         layout = self.events_container.layout()
         while layout.count():
             item = layout.takeAt(0)
@@ -345,50 +345,50 @@ class CalendarComponent(BaseComponent):
             if widget:
                 widget.deleteLater()
             elif item.spacerItem():
-                # Remove spacer items também
+                # Remove itens de espaçamento também
                 layout.removeItem(item)
     
     def _add_event_widget(self, event: Dict[str, Any]):
-        """Add an event widget to the events container.
+        """Adiciona um widget de evento ao contêiner de eventos.
         
         Args:
-            event: The event data
+            event: Os dados do evento
         """
-        # Create event widget
+        # Cria widget de evento
         event_widget = QWidget(self.events_container)
         event_widget.setContextMenuPolicy(Qt.CustomContextMenu)
         event_widget.customContextMenuRequested.connect(
             lambda pos, e=event: self._show_event_context_menu(pos, e)
         )
         
-        # Set style
+        # Define estilo
         event_widget.setStyleSheet(
             "background-color: #f0f8ff; border-radius: 5px; padding: 5px; border: 1px solid #d0e0f0; margin-bottom: 5px;"
         )
         
-        # Create layout
+        # Cria layout
         layout = QVBoxLayout(event_widget)
         layout.setContentsMargins(5, 5, 5, 5)
         layout.setSpacing(2)
         
-        # Add title
+        # Adiciona título
         title = event.get('title', '')
         if title:
             title_label = QLabel(title, event_widget)
             title_label.setStyleSheet("font-weight: bold;")
             layout.addWidget(title_label)
         else:
-            title_label = QLabel("(No title)", event_widget)
+            title_label = QLabel("(Sem título)", event_widget)
             title_label.setStyleSheet("font-weight: bold; color: gray;")
             layout.addWidget(title_label)
         
-        # Add time
+        # Adiciona hora
         if 'formatted_date' in event:
             formatted_date = event.get('formatted_date', '')
-            # Extract time part from formatted date (assuming format is dd/mm/yyyy HH:MM:SS)
+            # Extrai a parte da hora da data formatada (supondo que o formato seja dd/mm/yyyy HH:MM:SS)
             if ' ' in formatted_date:
                 time_part = formatted_date.split(' ')[1]
-                # Show only hours and minutes
+                # Mostra apenas horas e minutos
                 if ':' in time_part:
                     time_display = ':'.join(time_part.split(':')[:2])
                     time_label = QLabel(f"⏰ {time_display}", event_widget)
@@ -399,10 +399,10 @@ class CalendarComponent(BaseComponent):
             time_label.setStyleSheet("color: #666;")
             layout.addWidget(time_label)
         
-        # Add description (truncated)
+        # Adiciona descrição (truncada)
         description = event.get('description', '')
         if description:
-            # Truncate description if too long
+            # Trunca a descrição se for muito longa
             max_length = 50
             if len(description) > max_length:
                 description = description[:max_length] + '...'
@@ -412,7 +412,7 @@ class CalendarComponent(BaseComponent):
             description_label.setWordWrap(True)
             layout.addWidget(description_label)
         
-        # Add to container (inserir no início do layout, antes do stretch)
+        # Adiciona ao contêiner (inserir no início do layout, antes do stretch)
         layout_count = self.events_container.layout().count()
         if layout_count > 0:
             # Insere antes do último item (que deve ser o stretch)
@@ -422,50 +422,50 @@ class CalendarComponent(BaseComponent):
             self.events_container.layout().addWidget(event_widget)
     
     def _show_event_context_menu(self, position, event: Dict[str, Any]):
-        """Show context menu for the event.
+        """Mostra o menu de contexto para o evento.
         
         Args:
-            position: The position where to show the menu
-            event: The event data
+            position: A posição onde mostrar o menu
+            event: Os dados do evento
         """
-        # Create context menu
+        # Cria menu de contexto
         menu = QMenu(self)
         
-        # Add actions
-        edit_action = QAction("Edit", self)
+        # Adiciona ações
+        edit_action = QAction("Editar", self)
         edit_action.triggered.connect(lambda: self._edit_event(event))
         menu.addAction(edit_action)
         
-        delete_action = QAction("Delete", self)
+        delete_action = QAction("Deletar", self)
         delete_action.triggered.connect(lambda: self._delete_event(event))
         menu.addAction(delete_action)
         
-        # Show the menu
+        # Mostra o menu
         sender = self.sender()
         menu.exec_(sender.mapToGlobal(position))
     
     def _add_event(self):
-        """Add a new event."""
-        # Create dialog
+        """Adiciona um novo evento."""
+        # Cria diálogo
         dialog = EventDialog(self)
         
-        # Set the date to the current selected date
+        # Define a data para a data atual selecionada
         dialog.date_input.setDate(self.current_date)
         
-        # Show dialog
+        # Mostra diálogo
         if dialog.exec_() == QDialog.Accepted:
-            # Get event data
+            # Obtém dados do evento
             event_data = dialog.get_event_data()
             
-            # Validate title
+            # Valida título
             if not event_data.get('title'):
-                QMessageBox.warning(self, "Missing Title", "Please enter a title for the event.")
+                QMessageBox.warning(self, "Título Ausente", "Por favor, insira um título para o evento.")
                 return
             
-            # Create event
+            # Cria evento
             event_controller = self.controllers.get('event_controller')
             if event_controller:
-                # Parse the date string to a date object
+                # Analisa a string da data para um objeto de data
                 date_str = event_data.get('date')
                 time_str = event_data.get('time')
                 event_date = None
@@ -474,12 +474,12 @@ class CalendarComponent(BaseComponent):
                     from shared.utils import DateUtils
                     event_date = DateUtils.parse_date(date_str)
                 
-                # If date parsing failed, use current date
+                # Se a análise da data falhar, usa a data atual
                 if event_date is None:
                     from shared.utils import DateUtils
                     event_date = DateUtils.get_current_date()
                 
-                # Combine date with time if available
+                # Combina a data com a hora, se disponível
                 event_datetime = event_date
                 if time_str:
                     from shared.utils import DateUtils
@@ -495,35 +495,35 @@ class CalendarComponent(BaseComponent):
                 )
                 
                 if event:
-                    # Refresh the calendar
+                    # Atualiza o calendário
                     self.refresh()
                     
-                    # Emit signal
+                    # Emite sinal
                     self.event_created.emit(event['id'])
     
     def _edit_event(self, event: Dict[str, Any]):
-        """Edit an existing event.
+        """Edita um evento existente.
         
         Args:
-            event: The event data
+            event: Os dados do evento
         """
-        # Create dialog
+        # Cria diálogo
         dialog = EventDialog(self, event)
         
-        # Show dialog
+        # Mostra diálogo
         if dialog.exec_() == QDialog.Accepted:
-            # Get event data
+            # Obtém dados do evento
             event_data = dialog.get_event_data()
             
-            # Validate title
+            # Valida título
             if not event_data.get('title'):
-                QMessageBox.warning(self, "Missing Title", "Please enter a title for the event.")
+                QMessageBox.warning(self, "Título Ausente", "Por favor, insira um título para o evento.")
                 return
             
-            # Update event
+            # Atualiza evento
             event_controller = self.controllers.get('event_controller')
             if event_controller:
-                # Parse the date string to a date object
+                # Analisa a string da data para um objeto de data
                 date_str = event_data.get('date')
                 time_str = event_data.get('time')
                 event_date = None
@@ -532,12 +532,12 @@ class CalendarComponent(BaseComponent):
                     from shared.utils import DateUtils
                     event_date = DateUtils.parse_date(date_str)
                 
-                # If date parsing failed, use current date
+                # Se a análise da data falhar, usa a data atual
                 if event_date is None:
                     from shared.utils import DateUtils
                     event_date = DateUtils.get_current_date()
                 
-                # Combine date with time if available
+                # Combina a data com a hora, se disponível
                 event_datetime = event_date
                 if time_str:
                     from shared.utils import DateUtils
@@ -553,27 +553,27 @@ class CalendarComponent(BaseComponent):
                     description=event_data.get('description') or ''
                 )
                 
-                # Get the updated event data if update was successful
+                # Obtém os dados do evento atualizado se a atualização foi bem-sucedida
                 updated_event = event_controller.get_event_by_id(event['id']) if updated else None
                 
                 if updated_event:
-                    # Refresh the calendar
+                    # Atualiza o calendário
                     self.refresh()
                     
-                    # Emit signal
+                    # Emite sinal
                     self.event_updated.emit(updated_event['id'])
     
     def _delete_event(self, event: Dict[str, Any]):
-        """Delete an event.
+        """Deleta um evento.
         
         Args:
-            event: The event data
+            event: Os dados do evento
         """
-        # Confirm deletion
+        # Confirma a exclusão
         reply = QMessageBox.question(
             self,
-            "Confirm Deletion",
-            "Are you sure you want to delete this event? This action cannot be undone.",
+            "Confirmar Exclusão",
+            "Tem certeza de que deseja excluir este evento? Esta ação não pode ser desfeita.",
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.No
         )
@@ -583,8 +583,8 @@ class CalendarComponent(BaseComponent):
             if event_controller:
                 event_id = event['id']
                 if event_controller.delete_event(event_id):
-                    # Refresh the calendar
+                    # Atualiza o calendário
                     self.refresh()
                     
-                    # Emit signal
+                    # Emite sinal
                     self.event_deleted.emit(event_id)

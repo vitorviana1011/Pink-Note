@@ -19,14 +19,14 @@ from shared.utils.logger import Logger
 from shared.constants import APP_NAME, APP_VERSION
 
 class SettingsDialog(QDialog):
-    """Dialog for application settings."""
+    """Diálogo de configurações da aplicação."""
     
     def __init__(self, parent=None, config=None):
-        """Initialize the dialog.
+        """Inicializa o diálogo.
         
         Args:
-            parent: The parent widget
-            config: The application configuration
+            parent: O widget pai
+            config: A configuração da aplicação
         """
         super().__init__(parent)
         
@@ -34,60 +34,60 @@ class SettingsDialog(QDialog):
         self.init_ui()
     
     def init_ui(self):
-        """Initialize the UI components."""
-        # Set dialog properties
-        self.setWindowTitle("Settings")
+        """Inicializa os componentes da interface."""
+        # Define propriedades do diálogo
+        self.setWindowTitle("Configurações")
         self.setMinimumWidth(400)
         
-        # Create layout
+        # Cria layout
         layout = QVBoxLayout(self)
         form_layout = QFormLayout()
         
-        # Database path input
+        # Entrada do caminho do banco de dados
         self.db_path_input = QLineEdit(self)
         self.db_path_input.setText(self.config.get('database_path'))
         db_path_layout = QHBoxLayout()
         db_path_layout.addWidget(self.db_path_input)
-        db_path_btn = QPushButton("Browse", self)
+        db_path_btn = QPushButton("Procurar", self)
         db_path_btn.clicked.connect(self._browse_db_path)
         db_path_layout.addWidget(db_path_btn)
-        form_layout.addRow("Database Path:", db_path_layout)
+        form_layout.addRow("Caminho do Banco de Dados:", db_path_layout)
         
-        # Storage path input
+        # Entrada do caminho de armazenamento
         self.storage_path_input = QLineEdit(self)
         self.storage_path_input.setText(self.config.get('storage_path'))
         storage_path_layout = QHBoxLayout()
         storage_path_layout.addWidget(self.storage_path_input)
-        storage_path_btn = QPushButton("Browse", self)
+        storage_path_btn = QPushButton("Procurar", self)
         storage_path_btn.clicked.connect(self._browse_storage_path)
         storage_path_layout.addWidget(storage_path_btn)
-        form_layout.addRow("Storage Path:", storage_path_layout)
+        form_layout.addRow("Caminho de Armazenamento:", storage_path_layout)
         
         layout.addLayout(form_layout)
         
-        # Buttons
+        # Botões
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
         layout.addWidget(button_box)
     
     def _browse_db_path(self):
-        """Browse for database path."""
+        """Selecionar caminho do banco de dados."""
         path, _ = QFileDialog.getSaveFileName(
             self,
-            "Select Database File",
+            "Selecionar arquivo do banco de dados",
             self.db_path_input.text(),
-            "SQLite Database (*.db);;All Files (*.*)"
+            "Banco de Dados SQLite (*.db);;Todos os Arquivos (*.*)"
         )
         
         if path:
             self.db_path_input.setText(path)
     
     def _browse_storage_path(self):
-        """Browse for storage path."""
+        """Selecionar caminho de armazenamento."""
         path = QFileDialog.getExistingDirectory(
             self,
-            "Select Storage Directory",
+            "Selecionar diretório de armazenamento",
             self.storage_path_input.text()
         )
         
@@ -95,10 +95,10 @@ class SettingsDialog(QDialog):
             self.storage_path_input.setText(path)
     
     def get_settings(self) -> Dict[str, Any]:
-        """Get the settings from the dialog inputs.
+        """Obtém as configurações dos campos do diálogo.
         
         Returns:
-            A dictionary with the settings
+            Um dicionário com as configurações
         """
         return {
             'database_path': self.db_path_input.text(),
@@ -106,24 +106,24 @@ class SettingsDialog(QDialog):
         }
 
 class MainWindow(QMainWindow):
-    """Main application window."""
+    """Janela principal da aplicação."""
     
     def __init__(self):
-        """Initialize the main window."""
+        """Inicializa a janela principal."""
         super().__init__()
         
-        # Initialize logger
+        # Inicializa o logger
         self.logger = Logger.get_instance()
         self.logger.info(f"Starting {APP_NAME} v{APP_VERSION}")
         
-        # Load configuration
+        # Carrega a configuração
         self.config = Config()
         self.config.load()
         
-        # Initialize dependency container
+        # Inicializa o container de dependências
         self.container = Container(self.config.get_all())
         
-        # Initialize controllers
+        # Inicializa os controladores
         self.controllers = {
             'note_controller': self.container.get_note_controller(),
             'folder_controller': self.container.get_folder_controller(),
@@ -131,186 +131,186 @@ class MainWindow(QMainWindow):
             'attachment_controller': self.container.get_attachment_controller()
         }
         
-        # Initialize UI
+        # Inicializa a UI
         self.init_ui()
         
-        # Connect signals
+        # Conecta os sinais
         self.connect_signals()
         
-        # Refresh components
+        # Atualiza os componentes
         self.refresh_all()
     
     def init_ui(self):
-        """Initialize the UI components."""
-        # Set window properties
+        """Inicializa os componentes da interface."""
+        # Define propriedades da janela
         self.setWindowTitle(f"{APP_NAME} v{APP_VERSION}")
         self.setMinimumSize(1000, 600)
         
-        # Create central widget
+        # Cria widget central
         central_widget = QWidget(self)
         self.setCentralWidget(central_widget)
         
-        # Create main layout
+        # Cria layout principal
         main_layout = QVBoxLayout(central_widget)
         main_layout.setContentsMargins(0, 0, 0, 0)
         
-        # Create main splitter
+        # Cria splitter principal
         self.main_splitter = QSplitter(Qt.Horizontal)
         main_layout.addWidget(self.main_splitter)
         
-        # Create left panel (folders and notes)
+        # Cria painel esquerdo (pastas e notas)
         left_panel = QWidget()
         left_layout = QVBoxLayout(left_panel)
         left_layout.setContentsMargins(5, 5, 5, 5)
         
-        # Create folder tree
+        # Cria árvore de pastas
         self.folder_tree = FolderTreeComponent(controllers=self.controllers)
         left_layout.addWidget(self.folder_tree)
         
-        # Create note list
+        # Cria lista de notas
         self.note_list = NoteListComponent(controllers=self.controllers)
         left_layout.addWidget(self.note_list)
         
-        # Add left panel to splitter
+        # Adiciona painel esquerdo ao splitter
         self.main_splitter.addWidget(left_panel)
         
-        # Create right panel (tabs)
+        # Cria painel direito (abas)
         right_panel = QWidget()
         right_layout = QVBoxLayout(right_panel)
         right_layout.setContentsMargins(5, 5, 5, 5)
         
-        # Create tab widget
+        # Cria widget de abas
         self.tabs = QTabWidget()
         right_layout.addWidget(self.tabs)
         
-        # Create note editor tab
+        # Cria aba de edição de notas
         self.note_editor = NoteEditorComponent(controllers=self.controllers)
-        self.tabs.addTab(self.note_editor, "Note")
+        self.tabs.addTab(self.note_editor, "Nota")
         
-        # Create calendar tab
+        # Cria aba de calendário
         self.calendar = CalendarComponent(controllers=self.controllers)
-        self.tabs.addTab(self.calendar, "Calendar")
+        self.tabs.addTab(self.calendar, "Calendário")
         
-        # Create search tab
+        # Cria aba de busca
         self.search = SearchComponent(controllers=self.controllers)
-        self.tabs.addTab(self.search, "Search")
+        self.tabs.addTab(self.search, "Busca")
         
-        # Add right panel to splitter
+        # Adiciona painel direito ao splitter
         self.main_splitter.addWidget(right_panel)
         
-        # Set splitter sizes
+        # Define tamanhos dos painéis no splitter
         self.main_splitter.setSizes([300, 700])
         
-        # Create toolbar
+        # Cria barra de ferramentas
         self.create_toolbar()
         
-        # Create status bar
+        # Cria barra de status
         self.status_bar = QStatusBar()
         self.setStatusBar(self.status_bar)
-        self.status_bar.showMessage("Ready")
+        self.status_bar.showMessage("Pronto")
     
     def create_toolbar(self):
-        """Create the application toolbar."""
-        # Create toolbar
+        """Cria a barra de ferramentas da aplicação."""
+        # Cria barra de ferramentas
         toolbar = QToolBar("Main Toolbar")
         toolbar.setIconSize(QSize(24, 24))
         self.addToolBar(toolbar)
         
-        # New note action
-        new_note_action = QAction("New Note", self)
+        # Ação de nova nota
+        new_note_action = QAction("Nova Nota", self)
         new_note_action.setShortcut(QKeySequence.New)
         new_note_action.triggered.connect(self.new_note)
         toolbar.addAction(new_note_action)
         
-        # New folder action
-        new_folder_action = QAction("New Folder", self)
+        # Ação de nova pasta
+        new_folder_action = QAction("Nova Pasta", self)
         new_folder_action.triggered.connect(self.new_folder)
         toolbar.addAction(new_folder_action)
         
         toolbar.addSeparator()
         
-        # New event action
-        new_event_action = QAction("New Event", self)
+        # Ação de novo evento
+        new_event_action = QAction("Novo Evento", self)
         new_event_action.triggered.connect(self.new_event)
         toolbar.addAction(new_event_action)
         
         toolbar.addSeparator()
         
-        # Settings action
-        settings_action = QAction("Settings", self)
+        # Ação de configurações
+        settings_action = QAction("Configurações", self)
         settings_action.triggered.connect(self.show_settings)
         toolbar.addAction(settings_action)
         
-        # About action
-        about_action = QAction("About", self)
+        # Ação de sobre
+        about_action = QAction("Sobre", self)
         about_action.triggered.connect(self.show_about)
         toolbar.addAction(about_action)
     
     def connect_signals(self):
-        """Connect component signals."""
-        # Connect folder tree signals
+        """Conecta os sinais dos componentes."""
+        # Conecta sinais da árvore de pastas
         self.folder_tree.folder_selected.connect(self.on_folder_selected)
         
-        # Connect note list signals
+        # Conecta sinais da lista de notas
         self.note_list.note_selected.connect(self.on_note_selected)
         
-        # Connect note editor signals
+        # Conecta sinais do editor de notas
         self.note_editor.note_saved.connect(self.on_note_saved)
         self.note_editor.note_deleted.connect(self.on_note_deleted)
         
-        # Connect search signals
+        # Conecta sinais de busca
         self.search.note_selected.connect(self.on_search_note_selected)
     
     def refresh_all(self):
-        """Refresh all components."""
+        """Atualiza todos os componentes."""
         self.folder_tree.refresh()
         self.calendar.refresh()
     
     def on_folder_selected(self, folder_id):
-        """Handle folder selection.
+        """Manipula a seleção de pastas.
         
         Args:
-            folder_id: The selected folder ID
+            folder_id: O ID da pasta selecionada
         """
-        # Update note list
+        # Atualiza lista de notas
         self.note_list.set_folder(folder_id)
         
-        # Update note editor
+        # Atualiza editor de notas
         self.note_editor.set_folder(folder_id)
         
-        # Update status
+        # Atualiza status
         folder_controller = self.controllers.get('folder_controller')
         if folder_controller:
             folder = folder_controller.get_folder_by_id(folder_id)
             if folder:
-                self.status_bar.showMessage(f"Folder: {folder['name']}")
+                self.status_bar.showMessage(f"Pasta: {folder['name']}")
     
     def on_note_selected(self, note_id):
-        """Handle note selection.
+        """Manipula a seleção de notas.
         
         Args:
-            note_id: The selected note ID
+            note_id: O ID da nota selecionada
         """
-        # Switch to note tab
+        # Altera para aba de edição de notas
         self.tabs.setCurrentWidget(self.note_editor)
         
-        # Load note in editor
+        # Carrega nota no editor
         self.note_editor.load_note(note_id)
         
-        # Update status
+        # Atualiza status
         note_controller = self.controllers.get('note_controller')
         if note_controller:
             note = note_controller.get_note_by_id(note_id)
             if note:
-                self.status_bar.showMessage(f"Note: {note['title']}")
+                self.status_bar.showMessage(f"Nota: {note['title']}")
     
     def on_search_note_selected(self, note_id):
-        """Handle note selection from search results.
+        """Manipula a seleção de notas nos resultados da busca.
         
         Args:
-            note_id: The selected note ID
+            note_id: O ID da nota selecionada
         """
-        # Get the note
+        # Obtém a nota
         note_controller = self.controllers.get('note_controller')
         if not note_controller:
             return
@@ -319,124 +319,124 @@ class MainWindow(QMainWindow):
         if not note:
             return
         
-        # Select the folder
+        # Seleciona a pasta
         folder_id = note.get('folder_id')
         if folder_id:
             self.folder_tree.select_folder(folder_id)
         
-        # Select the note
+        # Seleciona a nota
         self.note_list.select_note(note_id)
     
     def on_note_saved(self, note_id):
-        """Handle note save.
+        """Manipula o salvamento de notas.
         
         Args:
-            note_id: The saved note ID
+            note_id: O ID da nota salva
         """
-        # Refresh note list
+        # Atualiza lista de notas
         self.note_list.refresh()
         
-        # Update status
+        # Atualiza status
         note_controller = self.controllers.get('note_controller')
         if note_controller:
             note = note_controller.get_note_by_id(note_id)
             if note:
-                self.status_bar.showMessage(f"Note saved: {note['title']}")
+                self.status_bar.showMessage(f"Nota salva: {note['title']}")
     
     def on_note_deleted(self, note_id):
-        """Handle note deletion.
+        """Manipula a exclusão de notas.
         
         Args:
-            note_id: The deleted note ID
+            note_id: O ID da nota excluída
         """
-        # Refresh note list
+        # Atualiza lista de notas
         self.note_list.refresh()
         
-        # Update status
-        self.status_bar.showMessage("Note deleted")
+        # Atualiza status
+        self.status_bar.showMessage("Nota excluída")
     
     def new_note(self):
-        """Create a new note."""
-        # Check if a folder is selected
+        """Cria uma nova nota."""
+        # Verifica se uma pasta está selecionada
         if self.folder_tree.current_folder_id is None:
             QMessageBox.warning(
                 self,
-                "No Folder Selected",
-                "Please select a folder before creating a new note."
+                "Nenhuma Pasta Selecionada",
+                "Por favor, selecione uma pasta antes de criar uma nova nota."
             )
             return
         
-        # Switch to note tab
+        # Altera para aba de edição de notas
         self.tabs.setCurrentWidget(self.note_editor)
         
-        # Create new note in editor
+        # Cria nova nota no editor
         self.note_editor.new_note()
     
     def new_folder(self):
-        """Create a new folder."""
-        # Get parent folder ID
+        """Cria uma nova pasta."""
+        # Obtém ID da pasta pai
         parent_id = self.folder_tree.current_folder_id
         
-        # Get folder name
-        name, ok = QInputDialog.getText(self, "New Folder", "Folder name:")
+        # Obtém nome da pasta
+        name, ok = QInputDialog.getText(self, "Nova Pasta", "Nome da pasta:")
         if ok and name:
             folder_controller = self.controllers.get('folder_controller')
             if folder_controller:
                 folder = folder_controller.create_folder(name, parent_id)
                 if folder:
-                    # Refresh folder tree
+                    # Atualiza árvore de pastas
                     self.folder_tree.refresh()
                     
-                    # Update status
-                    self.status_bar.showMessage(f"Folder created: {name}")
+                    # Atualiza status
+                    self.status_bar.showMessage(f"Pasta criada: {name}")
     
     def new_event(self):
-        """Create a new event."""
-        # Switch to calendar tab
+        """Cria um novo evento."""
+        # Altera para aba de calendário
         self.tabs.setCurrentWidget(self.calendar)
         
-        # Trigger add event
+        # Aciona adição de evento
         self.calendar._add_event()
     
     def show_settings(self):
-        """Show settings dialog."""
+        """Exibe o diálogo de configurações."""
         dialog = SettingsDialog(self, self.config)
         if dialog.exec_() == QDialog.Accepted:
-            # Get settings
+            # Obtém configurações
             settings = dialog.get_settings()
             
-            # Update configuration
+            # Atualiza configuração
             for key, value in settings.items():
                 self.config.set(key, value)
             
-            # Save configuration
+            # Salva configuração
             self.config.save()
             
-            # Show restart message
+            # Exibe mensagem de reinício
             QMessageBox.information(
                 self,
-                "Settings Updated",
-                "Settings have been updated. Some changes may require a restart to take effect."
+                "Configurações Atualizadas",
+                "As configurações foram atualizadas. Algumas mudanças podem exigir um reinício para terem efeito."
             )
     
     def show_about(self):
-        """Show about dialog."""
+        """Exibe o diálogo sobre."""
         QMessageBox.about(
             self,
-            f"About {APP_NAME}",
+            f"Sobre {APP_NAME}",
             f"<h3>{APP_NAME} v{APP_VERSION}</h3>"
-            "<p>A note-taking application with calendar and event management.</p>"
-            "<p>Created for Software Engineering course project.</p>"
+            "<p>Uma aplicação de anotação com gerenciamento de calendário e eventos.</p>"
+            "<p>Desenvolvido para o projeto da disciplina de Engenharia de Software.</p>"
         )
     
     def closeEvent(self, event):
-        """Handle window close event.
+        """Manipula o evento de fechamento da janela.
         
         Args:
-            event: The close event
+            event: O evento de fechamento
         """
-        # Log application exit
+        # Registra saída da aplicação
         self.logger.info(f"Exiting {APP_NAME} v{APP_VERSION}")
         
-        # Accept the event
+        # Aceita o evento
         event.accept()

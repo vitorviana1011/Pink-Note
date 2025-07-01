@@ -3,37 +3,37 @@ import sqlite3
 from datetime import datetime
 
 class DatabaseInitializer:
-    """Class responsible for initializing the SQLite database."""
+    """Classe responsável por inicializar o banco de dados SQLite."""
     
     def __init__(self, db_path):
-        """Initialize with the database file path."""
+        """Inicializa com o caminho do arquivo do banco de dados."""
         self.db_path = db_path
         self.connection = None
     
     def initialize_database(self):
-        """Create the database and tables if they don't exist."""
-        # Ensure the directory exists
+        """Cria o banco de dados e as tabelas se não existirem."""
+        # Garante que o diretório exista
         os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
         
-        # Connect to the database (creates it if it doesn't exist)
+        # Conecta ao banco de dados (cria se não existir)
         self.connection = sqlite3.connect(self.db_path)
         
-        # Enable foreign keys
+        # Habilita chaves estrangeiras
         self.connection.execute("PRAGMA foreign_keys = ON")
         
-        # Create tables
+        # Cria tabelas
         self._create_tables()
         
-        # Initialize with default data if needed
+        # Inicializa com dados padrão se necessário
         self._initialize_default_data()
         
         return self.connection
     
     def _create_tables(self):
-        """Create all required tables."""
+        """Cria todas as tabelas necessárias."""
         cursor = self.connection.cursor()
         
-        # Create folders table
+        # Cria tabela de pastas
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS folders (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -44,7 +44,7 @@ class DatabaseInitializer:
         )
         """)
         
-        # Create notes table
+        # Cria tabela de notas
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS notes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -57,7 +57,7 @@ class DatabaseInitializer:
         )
         """)
         
-        # Create attachments table
+        # Cria tabela de anexos
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS attachments (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -70,7 +70,7 @@ class DatabaseInitializer:
         )
         """)
         
-        # Create events table
+        # Cria tabela de eventos
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS events (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -83,22 +83,22 @@ class DatabaseInitializer:
         self.connection.commit()
     
     def _initialize_default_data(self):
-        """Initialize the database with default data if it's empty."""
+        """Inicializa o banco de dados com dados padrão se estiver vazio."""
         cursor = self.connection.cursor()
         
-        # Check if the folders table is empty
+        # Verifica se a tabela de pastas está vazia
         cursor.execute("SELECT COUNT(*) FROM folders")
         folder_count = cursor.fetchone()[0]
         
         if folder_count == 0:
-            # Create the default 'Geral' (General) folder
+            # Cria a pasta padrão 'Geral'
             now = datetime.now().isoformat()
             cursor.execute(
                 "INSERT INTO folders (name, parent_id, path) VALUES (?, ?, ?)",
                 ("Geral", None, "/Geral")
             )
             
-            # Create a welcome note in the General folder
+            # Cria uma nota de boas-vindas na pasta Geral
             cursor.execute(
                 "INSERT INTO notes (title, content, created_at, modified_at, folder_id) VALUES (?, ?, ?, ?, ?)",
                 (
@@ -106,7 +106,7 @@ class DatabaseInitializer:
                     "Bem-vindo ao seu novo aplicativo de notas! Este é um exemplo de nota.",
                     now,
                     now,
-                    1  # ID of the General folder
+                    1  # ID da pasta Geral
                 )
             )
             

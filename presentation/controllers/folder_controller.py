@@ -5,38 +5,38 @@ from application.interfaces.folder_service import FolderService
 from shared.utils.logger import Logger
 
 class FolderController:
-    """Controller for folder-related operations in the presentation layer."""
+    """Controlador para operações relacionadas a pastas na camada de apresentação."""
     
     def __init__(self, folder_service: FolderService):
-        """Initialize the controller with required services.
+        """Inicializa o controlador com os serviços necessários.
         
         Args:
-            folder_service: The folder service
+            folder_service: O serviço de pastas
         """
         self.folder_service = folder_service
         self.logger = Logger.get_instance()
     
     def get_all_folders(self) -> List[Dict[str, Any]]:
-        """Get all folders.
+        """Obtém todas as pastas.
         
         Returns:
-            A list of dictionaries representing folders
+            Uma lista de dicionários representando as pastas
         """
         try:
             folders = self.folder_service.get_all_folders()
             return [self._folder_to_dict(folder) for folder in folders]
         except Exception as e:
-            self.logger.error(f"Error getting all folders: {str(e)}")
+            self.logger.error(f"Erro ao obter todas as pastas: {str(e)}")
             return []
     
     def get_folder_by_id(self, folder_id: int) -> Optional[Dict[str, Any]]:
-        """Get a folder by its ID.
+        """Obtém uma pasta pelo seu ID.
         
         Args:
-            folder_id: The folder ID
+            folder_id: O ID da pasta
             
         Returns:
-            A dictionary representing the folder, or None if not found
+            Um dicionário representando a pasta, ou None se não encontrada
         """
         try:
             folder = self.folder_service.get_folder_by_id(folder_id)
@@ -44,131 +44,131 @@ class FolderController:
                 return self._folder_to_dict(folder)
             return None
         except Exception as e:
-            self.logger.error(f"Error getting folder {folder_id}: {str(e)}")
+            self.logger.error(f"Erro ao obter a pasta {folder_id}: {str(e)}")
             return None
     
     def get_folder_hierarchy(self) -> List[Dict[str, Any]]:
-        """Get the folder hierarchy.
+        """Obtém a hierarquia de pastas.
         
         Returns:
-            A list of dictionaries representing the folder hierarchy
+            Uma lista de dicionários representando a hierarquia de pastas
         """
         try:
             hierarchy = self.folder_service.get_folder_hierarchy()
             return self._process_hierarchy(hierarchy)
         except Exception as e:
-            self.logger.error(f"Error getting folder hierarchy: {str(e)}")
+            self.logger.error(f"Erro ao obter a hierarquia de pastas: {str(e)}")
             return []
     
     def create_folder(self, name: str, parent_id: Optional[int] = None) -> Optional[Dict[str, Any]]:
-        """Create a new folder.
+        """Cria uma nova pasta.
         
         Args:
-            name: The folder name
-            parent_id: The parent folder ID (optional)
+            name: O nome da pasta
+            parent_id: O ID da pasta pai (opcional)
             
         Returns:
-            A dictionary representing the created folder, or None if creation failed
+            Um dicionário representando a pasta criada, ou None se falhar
         """
         try:
-            # Validate parent folder if provided
+            # Valida a pasta pai se fornecida
             if parent_id is not None:
                 parent = self.folder_service.get_folder_by_id(parent_id)
                 if not parent:
-                    self.logger.error(f"Cannot create folder: Parent folder {parent_id} not found")
+                    self.logger.error(f"Não é possível criar pasta: Pasta pai {parent_id} não encontrada")
                     return None
             
-            # Create the folder
+            # Cria a pasta
             folder_id = self.folder_service.create_folder(name, parent_id)
             if folder_id:
                 return self.get_folder_by_id(folder_id)
             return None
         except Exception as e:
-            self.logger.error(f"Error creating folder: {str(e)}")
+            self.logger.error(f"Erro ao criar pasta: {str(e)}")
             return None
     
     def rename_folder(self, folder_id: int, new_name: str) -> bool:
-        """Rename a folder.
+        """Renomeia uma pasta.
         
         Args:
-            folder_id: The folder ID
-            new_name: The new folder name
+            folder_id: O ID da pasta
+            new_name: O novo nome da pasta
             
         Returns:
-            True if the rename was successful, False otherwise
+            True se renomeou com sucesso, False caso contrário
         """
         try:
             return self.folder_service.rename_folder(folder_id, new_name)
         except Exception as e:
-            self.logger.error(f"Error renaming folder {folder_id}: {str(e)}")
+            self.logger.error(f"Erro ao renomear pasta {folder_id}: {str(e)}")
             return False
     
     def delete_folder(self, folder_id: int) -> bool:
-        """Delete a folder.
+        """Exclui uma pasta.
         
         Args:
-            folder_id: The folder ID
+            folder_id: O ID da pasta
             
         Returns:
-            True if the deletion was successful, False otherwise
+            True se excluiu com sucesso, False caso contrário
         """
         try:
             return self.folder_service.delete_folder(folder_id)
         except Exception as e:
-            self.logger.error(f"Error deleting folder {folder_id}: {str(e)}")
+            self.logger.error(f"Erro ao excluir pasta {folder_id}: {str(e)}")
             return False
     
     def move_folder(self, folder_id: int, new_parent_id: Optional[int]) -> bool:
-        """Move a folder to a different parent folder.
+        """Move uma pasta para outra pasta pai.
         
         Args:
-            folder_id: The folder ID
-            new_parent_id: The new parent folder ID, or None to move to root
+            folder_id: O ID da pasta
+            new_parent_id: O novo ID da pasta pai, ou None para mover para a raiz
             
         Returns:
-            True if the move was successful, False otherwise
+            True se moveu com sucesso, False caso contrário
         """
         try:
-            # Validate new parent folder if provided
+            # Valida a nova pasta pai se fornecida
             if new_parent_id is not None:
                 parent = self.folder_service.get_folder_by_id(new_parent_id)
                 if not parent:
-                    self.logger.error(f"Cannot move folder: Parent folder {new_parent_id} not found")
+                    self.logger.error(f"Não é possível mover pasta: Pasta pai {new_parent_id} não encontrada")
                     return False
                 
-                # Check if new_parent_id is a descendant of folder_id (which would create a cycle)
+                # Verifica se new_parent_id é descendente de folder_id (evita ciclo)
                 if self._is_descendant(new_parent_id, folder_id):
-                    self.logger.error(f"Cannot move folder: Would create a cycle in the folder hierarchy")
+                    self.logger.error(f"Não é possível mover pasta: Criaria um ciclo na hierarquia de pastas")
                     return False
             
             return self.folder_service.move_folder(folder_id, new_parent_id)
         except Exception as e:
-            self.logger.error(f"Error moving folder {folder_id} to parent {new_parent_id}: {str(e)}")
+            self.logger.error(f"Erro ao mover pasta {folder_id} para pai {new_parent_id}: {str(e)}")
             return False
     
     def get_folder_note_count(self, folder_id: int) -> int:
-        """Get the number of notes in a folder.
+        """Obtém o número de notas em uma pasta.
         
         Args:
-            folder_id: The folder ID
+            folder_id: O ID da pasta
             
         Returns:
-            The number of notes in the folder
+            O número de notas na pasta
         """
         try:
             return self.folder_service.get_folder_note_count(folder_id)
         except Exception as e:
-            self.logger.error(f"Error getting note count for folder {folder_id}: {str(e)}")
+            self.logger.error(f"Erro ao obter quantidade de notas da pasta {folder_id}: {str(e)}")
             return 0
     
     def _folder_to_dict(self, folder: Folder) -> Dict[str, Any]:
-        """Convert a Folder entity to a dictionary.
+        """Converte uma entidade Folder para um dicionário.
         
         Args:
-            folder: The Folder entity
+            folder: A entidade Folder
             
         Returns:
-            A dictionary representation of the folder
+            Um dicionário representando a pasta
         """
         return {
             'id': folder.id,
@@ -179,13 +179,13 @@ class FolderController:
         }
     
     def _process_hierarchy(self, hierarchy: List[Tuple[Folder, int]]) -> List[Dict[str, Any]]:
-        """Process the folder hierarchy to add additional information.
+        """Processa a hierarquia de pastas para adicionar informações adicionais.
         
         Args:
-            hierarchy: The folder hierarchy from the service as a list of (folder, depth) tuples
+            hierarchy: A hierarquia de pastas do serviço como uma lista de tuplas (folder, profundidade)
             
         Returns:
-            The processed folder hierarchy
+            A hierarquia de pastas processada
         """
         result = []
         
@@ -194,33 +194,33 @@ class FolderController:
             folder_dict['depth'] = depth
             folder_dict['note_count'] = self.get_folder_note_count(folder_dict['id'])
             
-            # Children are processed separately in the tree component
+            # Filhos são processados separadamente no componente de árvore
             
             result.append(folder_dict)
         
         return result
     
     def _is_descendant(self, folder_id: int, potential_ancestor_id: int) -> bool:
-        """Check if a folder is a descendant of another folder.
+        """Verifica se uma pasta é descendente de outra pasta.
         
         Args:
-            folder_id: The folder ID to check
-            potential_ancestor_id: The potential ancestor folder ID
+            folder_id: O ID da pasta a verificar
+            potential_ancestor_id: O ID da possível pasta ancestral
             
         Returns:
-            True if folder_id is a descendant of potential_ancestor_id, False otherwise
+            True se folder_id é descendente de potential_ancestor_id, False caso contrário
         """
         folder = self.folder_service.get_folder_by_id(folder_id)
         if not folder:
             return False
         
-        # If this folder's parent is the potential ancestor, it's a descendant
+        # Se o pai desta pasta é o ancestral potencial, é descendente
         if folder.parent_id == potential_ancestor_id:
             return True
         
-        # If this folder has no parent, it's not a descendant
+        # Se esta pasta não tem pai, não é descendente
         if folder.parent_id is None:
             return False
         
-        # Recursively check if the parent is a descendant
+        # Verifica recursivamente se o pai é descendente
         return self._is_descendant(folder.parent_id, potential_ancestor_id)

@@ -8,49 +8,49 @@ from shared.utils.logger import Logger
 from shared.constants.app_constants import SUPPORTED_FILE_EXTENSIONS
 
 class AttachmentController:
-    """Controller for attachment-related operations in the presentation layer."""
+    """Controlador para operações relacionadas a anexos na camada de apresentação."""
     
     def __init__(self, attachment_service: AttachmentService, note_service: NoteService):
-        """Initialize the controller with required services.
+        """Inicializa o controlador com os serviços necessários.
         
         Args:
-            attachment_service: The attachment service
-            note_service: The note service
+            attachment_service: O serviço de anexos
+            note_service: O serviço de notas
         """
         self.attachment_service = attachment_service
         self.note_service = note_service
         self.logger = Logger.get_instance()
     
     def get_attachments_for_note(self, note_id: int) -> List[Dict[str, Any]]:
-        """Get all attachments for a specific note.
+        """Obtém todos os anexos de uma nota específica.
         
         Args:
-            note_id: The note ID
+            note_id: O ID da nota
             
         Returns:
-            A list of dictionaries representing attachments
+            Uma lista de dicionários representando os anexos
         """
         try:
-            # Validate note exists
+            # Valida se a nota existe
             note = self.note_service.get_note_by_id(note_id)
             if not note:
-                self.logger.error(f"Cannot get attachments: Note {note_id} not found")
+                self.logger.error(f"Não é possível obter anexos: Nota {note_id} não encontrada")
                 return []
             
             attachments = self.attachment_service.get_attachments_for_note(note_id)
             return [self._attachment_to_dict(attachment) for attachment in attachments]
         except Exception as e:
-            self.logger.error(f"Error getting attachments for note {note_id}: {str(e)}")
+            self.logger.error(f"Erro ao obter anexos da nota {note_id}: {str(e)}")
             return []
     
     def get_attachment_by_id(self, attachment_id: int) -> Optional[Dict[str, Any]]:
-        """Get an attachment by its ID.
+        """Obtém um anexo pelo seu ID.
         
         Args:
-            attachment_id: The attachment ID
+            attachment_id: O ID do anexo
             
         Returns:
-            A dictionary representing the attachment, or None if not found
+            Um dicionário representando o anexo, ou None se não encontrado
         """
         try:
             attachment = self.attachment_service.get_attachment_by_id(attachment_id)
@@ -58,84 +58,84 @@ class AttachmentController:
                 return self._attachment_to_dict(attachment)
             return None
         except Exception as e:
-            self.logger.error(f"Error getting attachment {attachment_id}: {str(e)}")
+            self.logger.error(f"Erro ao obter anexo {attachment_id}: {str(e)}")
             return None
     
     def add_attachment(self, note_id: int, file_path: str) -> Optional[Dict[str, Any]]:
-        """Add a new attachment to a note.
+        """Adiciona um novo anexo a uma nota.
         
         Args:
-            note_id: The note ID
-            file_path: The path to the file to attach
+            note_id: O ID da nota
+            file_path: O caminho do arquivo a ser anexado
             
         Returns:
-            A dictionary representing the added attachment, or None if addition failed
+            Um dicionário representando o anexo adicionado, ou None se falhar
         """
         try:
-            # Validate note exists
+            # Valida se a nota existe
             note = self.note_service.get_note_by_id(note_id)
             if not note:
-                self.logger.error(f"Cannot add attachment: Note {note_id} not found")
+                self.logger.error(f"Não é possível adicionar anexo: Nota {note_id} não encontrada")
                 return None
             
-            # Validate file exists
+            # Valida se o arquivo existe
             if not os.path.exists(file_path):
-                self.logger.error(f"Cannot add attachment: File {file_path} not found")
+                self.logger.error(f"Não é possível adicionar anexo: Arquivo {file_path} não encontrado")
                 return None
             
-            # Validate file extension
+            # Valida extensão do arquivo
             file_ext = os.path.splitext(file_path)[1].lower()
             if file_ext not in SUPPORTED_FILE_EXTENSIONS:
-                self.logger.error(f"Cannot add attachment: Unsupported file extension {file_ext}")
+                self.logger.error(f"Não é possível adicionar anexo: Extensão de arquivo não suportada {file_ext}")
                 return None
             
-            # Add the attachment
+            # Adiciona o anexo
             attachment_id = self.attachment_service.add_attachment(note_id, file_path)
             if attachment_id:
                 return self.get_attachment_by_id(attachment_id)
             return None
         except Exception as e:
-            self.logger.error(f"Error adding attachment to note {note_id}: {str(e)}")
+            self.logger.error(f"Erro ao adicionar anexo à nota {note_id}: {str(e)}")
             return None
     
     def delete_attachment(self, attachment_id: int) -> bool:
-        """Delete an attachment.
+        """Exclui um anexo.
         
         Args:
-            attachment_id: The attachment ID
+            attachment_id: O ID do anexo
             
         Returns:
-            True if the deletion was successful, False otherwise
+            True se a exclusão foi bem-sucedida, False caso contrário
         """
         try:
             return self.attachment_service.delete_attachment(attachment_id)
         except Exception as e:
-            self.logger.error(f"Error deleting attachment {attachment_id}: {str(e)}")
+            self.logger.error(f"Erro ao excluir anexo {attachment_id}: {str(e)}")
             return False
     
     def open_attachment(self, attachment_id: int) -> bool:
-        """Open an attachment with the default system application.
+        """Abre um anexo com o aplicativo padrão do sistema.
         
         Args:
-            attachment_id: The attachment ID
+            attachment_id: O ID do anexo
             
         Returns:
-            True if the attachment was opened successfully, False otherwise
+            True se o anexo foi aberto com sucesso, False caso contrário
         """
         try:
             return self.attachment_service.open_attachment(attachment_id)
         except Exception as e:
-            self.logger.error(f"Error opening attachment {attachment_id}: {str(e)}")
+            self.logger.error(f"Erro ao abrir anexo {attachment_id}: {str(e)}")
             return False
     
     def _attachment_to_dict(self, attachment: Attachment) -> Dict[str, Any]:
-        """Convert an Attachment entity to a dictionary.
+        """Converte uma entidade Attachment para um dicionário.
         
         Args:
-            attachment: The Attachment entity
+            attachment: A entidade Attachment
             
         Returns:
-            A dictionary representation of the attachment
+            Um dicionário representando o anexo
         """
         return {
             'id': attachment.id,

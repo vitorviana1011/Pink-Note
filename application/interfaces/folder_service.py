@@ -4,44 +4,44 @@ from typing import List, Optional, Tuple
 from domain.entities.folder import Folder
 
 class FolderService(ABC):
-    """Interface for folder-related use cases."""
+    """Interface para casos de uso relacionados a pastas."""
     
     @abstractmethod
     def get_all_folders(self) -> List[Folder]:
-        """Get all folders."""
+        """Obtém todas as pastas."""
         pass
     
     @abstractmethod
     def get_folder_by_id(self, folder_id: int) -> Optional[Folder]:
-        """Get a folder by its ID."""
+        """Obtém uma pasta pelo seu ID."""
         pass
     
     @abstractmethod
     def get_folder_hierarchy(self) -> List[Tuple[Folder, int]]:
-        """Get the folder hierarchy as a list of (folder, depth) tuples."""
+        """Obtém a hierarquia de pastas como uma lista de tuplas (pasta, profundidade)."""
         pass
     
     @abstractmethod
     def create_folder(self, name: str, parent_id: Optional[int] = None) -> int:
-        """Create a new folder and return its ID."""
+        """Cria uma nova pasta e retorna seu ID."""
         pass
     
     @abstractmethod
     def rename_folder(self, folder_id: int, new_name: str) -> bool:
-        """Rename a folder and return success status."""
+        """Renomeia uma pasta e retorna o status de sucesso."""
         pass
     
     @abstractmethod
     def delete_folder(self, folder_id: int) -> bool:
-        """Delete a folder and return success status."""
+        """Exclui uma pasta e retorna o status de sucesso."""
         pass
     
     @abstractmethod
     def move_folder(self, folder_id: int, new_parent_id: Optional[int]) -> bool:
-        """Move a folder to a new parent and return success status."""
+        """Move uma pasta para um novo pai e retorna o status de sucesso."""
         pass
     
     @abstractmethod
     def get_folder_note_count(self, folder_id: int) -> int:
-        """Get the number of notes in a folder."""
+        """Obtém o número de notas em uma pasta."""
         pass

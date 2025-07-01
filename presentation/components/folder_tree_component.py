@@ -5,171 +5,171 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from presentation.components.base_component import BaseComponent
 
 class FolderTreeComponent(BaseComponent):
-    """Component for displaying and managing a tree of folders."""
+    """Componente para exibir e gerenciar uma árvore de pastas."""
     
-    # Define signals
-    folder_selected = pyqtSignal(int)  # Emitted when a folder is selected (folder_id)
-    folder_created = pyqtSignal(int)   # Emitted when a folder is created (folder_id)
-    folder_renamed = pyqtSignal(int)   # Emitted when a folder is renamed (folder_id)
-    folder_deleted = pyqtSignal(int)   # Emitted when a folder is deleted (folder_id)
-    folder_moved = pyqtSignal(int, int)  # Emitted when a folder is moved (folder_id, target_folder_id)
+    # Define sinais
+    folder_selected = pyqtSignal(int)  # Emitido quando uma pasta é selecionada (folder_id)
+    folder_created = pyqtSignal(int)   # Emitido quando uma pasta é criada (folder_id)
+    folder_renamed = pyqtSignal(int)   # Emitido quando uma pasta é renomeada (folder_id)
+    folder_deleted = pyqtSignal(int)   # Emitido quando uma pasta é excluída (folder_id)
+    folder_moved = pyqtSignal(int, int)  # Emitido quando uma pasta é movida (folder_id, target_folder_id)
     
     def __init__(self, parent=None, controllers=None):
-        """Initialize the component.
+        """Inicializa o componente.
         
         Args:
-            parent: The parent widget
-            controllers: A dictionary of controllers
+            parent: O widget pai
+            controllers: Um dicionário de controladores
         """
         super().__init__(parent, controllers)
         
-        # Current folder ID
+        # ID da pasta atual
         self.current_folder_id = None
         
-        # Folder items map (folder_id -> QTreeWidgetItem)
+        # Mapa de itens de pasta (folder_id -> QTreeWidgetItem)
         self.folder_items = {}
     
     def _init_ui(self):
-        """Initialize the UI components."""
-        # Create tree widget
+        """Inicializa os componentes da interface."""
+        # Cria o widget de árvore
         self.tree_widget = QTreeWidget(self)
         self.tree_widget.setHeaderHidden(True)
         self.tree_widget.setContextMenuPolicy(Qt.CustomContextMenu)
         
-        # Set up layout
+        # Configura o layout
         from PyQt5.QtWidgets import QVBoxLayout
         layout = QVBoxLayout()
         layout.addWidget(self.tree_widget)
         self.setLayout(layout)
     
     def _connect_signals(self):
-        """Connect signals and slots."""
-        # Connect tree widget signals
+        """Conecta sinais e slots."""
+        # Conecta sinais do widget de árvore
         self.tree_widget.itemClicked.connect(self._on_item_clicked)
         self.tree_widget.customContextMenuRequested.connect(self._show_context_menu)
     
     def refresh(self):
-        """Refresh the folder tree."""
-        # Clear the tree
+        """Atualiza a árvore de pastas."""
+        # Limpa a árvore
         self.tree_widget.clear()
         self.folder_items = {}
         
-        # Get folder hierarchy
+        # Obtém a hierarquia de pastas
         folder_controller = self.controllers.get('folder_controller')
         if folder_controller:
             hierarchy = folder_controller.get_folder_hierarchy()
             
-            # Build the tree
+            # Monta a árvore
             for folder in hierarchy:
                 self._add_folder_to_tree(folder)
             
-            # Expand all items
+            # Expande todos os itens
             self.tree_widget.expandAll()
             
-            # Select the current folder if set
+            # Seleciona a pasta atual se definida
             if self.current_folder_id is not None:
                 self.select_folder(self.current_folder_id)
     
     def _add_folder_to_tree(self, folder: Dict[str, Any], parent_item: Optional[QTreeWidgetItem] = None):
-        """Add a folder to the tree widget.
+        """Adiciona uma pasta ao widget de árvore.
         
         Args:
-            folder: The folder data
-            parent_item: The parent tree item (optional)
+            folder: Os dados da pasta
+            parent_item: O item pai na árvore (opcional)
         """
-        # Create tree item
+        # Cria item de árvore
         item = QTreeWidgetItem()
         item.setText(0, folder['name'])
-        item.setData(0, Qt.UserRole, folder['id'])  # Store folder ID as user data
+        item.setData(0, Qt.UserRole, folder['id'])  # Armazena o ID da pasta como dado do usuário
         
-        # Add note count to the display text if available
+        # Adiciona a contagem de notas ao texto se disponível
         if 'note_count' in folder:
             item.setText(0, f"{folder['name']} ({folder['note_count']})")  
         
-        # Add item to the tree
+        # Adiciona o item à árvore
         if parent_item:
             parent_item.addChild(item)
         else:
             self.tree_widget.addTopLevelItem(item)
         
-        # Store the item in the map
+        # Armazena o item no mapa
         self.folder_items[folder['id']] = item
         
-        # Add children recursively
+        # Adiciona filhos recursivamente
         if 'children' in folder:
             for child in folder['children']:
                 self._add_folder_to_tree(child, item)
     
     def _on_item_clicked(self, item: QTreeWidgetItem, column: int):
-        """Handle item click event.
+        """Manipula o evento de clique em um item.
         
         Args:
-            item: The clicked item
-            column: The clicked column
+            item: O item clicado
+            column: A coluna clicada
         """
         folder_id = item.data(0, Qt.UserRole)
         self.current_folder_id = folder_id
         self.folder_selected.emit(folder_id)
     
     def _show_context_menu(self, position):
-        """Show context menu for the tree item at the given position.
+        """Mostra o menu de contexto para o item da árvore na posição dada.
         
         Args:
-            position: The position where to show the menu
+            position: A posição onde mostrar o menu
         """
-        # Get the item at the position
+        # Obtém o item na posição
         item = self.tree_widget.itemAt(position)
         if not item:
             return
         
-        # Get the folder ID
+        # Obtém o ID da pasta
         folder_id = item.data(0, Qt.UserRole)
         
-        # Create context menu
+        # Cria menu de contexto
         menu = QMenu(self)
         
-        # Add actions
-        new_folder_action = QAction("New Folder", self)
+        # Adiciona ações
+        new_folder_action = QAction("Nova Pasta", self)
         new_folder_action.triggered.connect(lambda: self._create_folder(folder_id))
         menu.addAction(new_folder_action)
         
-        rename_action = QAction("Rename", self)
+        rename_action = QAction("Renomear", self)
         rename_action.triggered.connect(lambda: self._rename_folder(folder_id))
         menu.addAction(rename_action)
         
-        # Add move to folder submenu
-        move_menu = menu.addMenu("Move to")
+        # Adiciona submenu de mover para pasta
+        move_menu = menu.addMenu("Mover para")
         self._populate_move_menu(move_menu, folder_id)
         
-        # Add delete action (only if not the root folder)
+        # Adiciona ação de excluir (apenas se não for a pasta raiz)
         folder_controller = self.controllers.get('folder_controller')
         if folder_controller:
             folder = folder_controller.get_folder_by_id(folder_id)
             if folder and not folder.get('is_root', False):
-                delete_action = QAction("Delete", self)
+                delete_action = QAction("Excluir", self)
                 delete_action.triggered.connect(lambda: self._delete_folder(folder_id))
                 menu.addAction(delete_action)
         
-        # Show the menu
+        # Mostra o menu
         menu.exec_(self.tree_widget.mapToGlobal(position))
     
     def _populate_move_menu(self, menu: QMenu, folder_id: int):
-        """Populate the move to folder submenu.
+        """Preenche o submenu de mover para pasta.
         
         Args:
-            menu: The menu to populate
-            folder_id: The folder ID
+            menu: O menu a ser preenchido
+            folder_id: O ID da pasta
         """
         folder_controller = self.controllers.get('folder_controller')
         if not folder_controller:
             return
         
-        # Get all folders
+        # Obtém todas as pastas
         folders = folder_controller.get_all_folders()
         
-        # Add folder actions
+        # Adiciona ações de pasta
         for folder in folders:
-            # Skip the current folder and its descendants
+            # Pula a pasta atual e seus descendentes
             if folder['id'] == folder_id or self._is_descendant(folder['id'], folder_id):
                 continue
             
@@ -177,20 +177,20 @@ class FolderTreeComponent(BaseComponent):
             action.triggered.connect(lambda checked=False, fid=folder['id']: self._move_folder(folder_id, fid))
             menu.addAction(action)
         
-        # Add move to root action
-        action = QAction("Root", self)
+        # Adiciona ação de mover para raiz
+        action = QAction("Raiz", self)
         action.triggered.connect(lambda: self._move_folder(folder_id, None))
         menu.addAction(action)
     
     def _is_descendant(self, folder_id: int, potential_ancestor_id: int) -> bool:
-        """Check if a folder is a descendant of another folder.
+        """Verifica se uma pasta é descendente de outra pasta.
         
         Args:
-            folder_id: The folder ID to check
-            potential_ancestor_id: The potential ancestor folder ID
+            folder_id: O ID da pasta a verificar
+            potential_ancestor_id: O ID da possível pasta ancestral
             
         Returns:
-            True if folder_id is a descendant of potential_ancestor_id, False otherwise
+            True se folder_id é descendente de potential_ancestor_id, False caso contrário
         """
         folder_controller = self.controllers.get('folder_controller')
         if not folder_controller:
@@ -200,77 +200,77 @@ class FolderTreeComponent(BaseComponent):
         if not folder:
             return False
         
-        # If this folder's parent is the potential ancestor, it's a descendant
+        # Se o pai desta pasta é o ancestral potencial, é descendente
         if folder.get('parent_id') == potential_ancestor_id:
             return True
         
-        # If this folder has no parent, it's not a descendant
+        # Se esta pasta não tem pai, não é descendente
         if folder.get('parent_id') is None:
             return False
         
-        # Recursively check if the parent is a descendant
+        # Verifica recursivamente se o pai é descendente
         return self._is_descendant(folder.get('parent_id'), potential_ancestor_id)
     
     def _create_folder(self, parent_id: int):
-        """Create a new folder.
+        """Cria uma nova pasta.
         
         Args:
-            parent_id: The parent folder ID
+            parent_id: O ID da pasta pai
         """
-        # Get folder name from user
-        name, ok = QInputDialog.getText(self, "New Folder", "Folder name:")
+        # Obtém nome da pasta do usuário
+        name, ok = QInputDialog.getText(self, "Nova Pasta", "Nome da pasta:")
         if ok and name:
             folder_controller = self.controllers.get('folder_controller')
             if folder_controller:
                 new_folder = folder_controller.create_folder(name, parent_id)
                 if new_folder:
-                    # Refresh the tree
+                    # Atualiza a árvore
                     self.refresh()
                     
-                    # Emit signal
+                    # Emite sinal
                     self.folder_created.emit(new_folder['id'])
     
     def _rename_folder(self, folder_id: int):
-        """Rename a folder.
+        """Renomeia uma pasta.
         
         Args:
-            folder_id: The folder ID
+            folder_id: O ID da pasta
         """
         folder_controller = self.controllers.get('folder_controller')
         if not folder_controller:
             return
         
-        # Get the current folder name
+        # Obtém o nome atual da pasta
         folder = folder_controller.get_folder_by_id(folder_id)
         if not folder:
             return
         
-        # Get new name from user
+        # Obtém novo nome do usuário
         name, ok = QInputDialog.getText(
-            self, "Rename Folder", "New folder name:", text=folder['name']
+            self, "Renomear Pasta", "Novo nome da pasta:", text=folder['name']
         )
         
         if ok and name and name != folder['name']:
             if folder_controller.rename_folder(folder_id, name):
-                # Update the item text
+                # Atualiza o texto do item
                 item = self.folder_items.get(folder_id)
                 if item:
                     item.setText(0, name)
                 
-                # Emit signal
+                # Emite sinal
                 self.folder_renamed.emit(folder_id)
     
     def _delete_folder(self, folder_id: int):
-        """Delete a folder.
+        """Exclui uma pasta.
         
         Args:
-            folder_id: The folder ID
+            folder_id: O ID da pasta
         """
-        # Confirm deletion
+        # Confirma exclusão
         reply = QMessageBox.question(
             self,
-            "Confirm Deletion",
-            "Are you sure you want to delete this folder? All notes will be moved to the General folder.",
+            "Confirmar Exclusão",
+            "Tem certeza que deseja excluir esta pasta? Todas as notas serão movidas para a pasta Geral.",
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.No
         )
@@ -278,32 +278,32 @@ class FolderTreeComponent(BaseComponent):
         if reply == QMessageBox.Yes:
             folder_controller = self.controllers.get('folder_controller')
             if folder_controller and folder_controller.delete_folder(folder_id):
-                # Refresh the tree
+                # Atualiza a árvore
                 self.refresh()
                 
-                # Emit signal
+                # Emite sinal
                 self.folder_deleted.emit(folder_id)
     
     def _move_folder(self, folder_id: int, target_folder_id: Optional[int]):
-        """Move a folder to a different parent folder.
+        """Move uma pasta para outro pai.
         
         Args:
-            folder_id: The folder ID
-            target_folder_id: The target folder ID, or None to move to root
+            folder_id: O ID da pasta
+            target_folder_id: O ID da pasta de destino, ou None para mover para a raiz
         """
         folder_controller = self.controllers.get('folder_controller')
         if folder_controller and folder_controller.move_folder(folder_id, target_folder_id):
-            # Refresh the tree
+            # Atualiza a árvore
             self.refresh()
             
-            # Emit signal
-            self.folder_moved.emit(folder_id, target_folder_id or 0)  # Use 0 for root
+            # Emite sinal
+            self.folder_moved.emit(folder_id, target_folder_id or 0)  # Usa 0 para raiz
     
     def select_folder(self, folder_id: int):
-        """Select a folder in the tree.
+        """Seleciona uma pasta na árvore.
         
         Args:
-            folder_id: The folder ID
+            folder_id: O ID da pasta
         """
         item = self.folder_items.get(folder_id)
         if item:

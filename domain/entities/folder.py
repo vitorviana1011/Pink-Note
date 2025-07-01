@@ -3,25 +3,25 @@ from typing import List, Optional
 
 @dataclass
 class Folder:
-    """Entity representing a folder in the hierarchical structure."""
+    """Entidade que representa uma pasta na estrutura hierárquica."""
     id: Optional[int] = None
     name: str = ""
-    parent_id: Optional[int] = None  # None for root folders
-    path: str = ""  # Full path representation (e.g., "Root/Subfolder/SubSubfolder")
+    parent_id: Optional[int] = None  # None para pastas raiz
+    path: str = ""  # Representação do caminho completo (ex: "Raiz/Subpasta/SubSubpasta")
     
     @property
     def is_root(self) -> bool:
-        """Check if this is a root-level folder."""
+        """Verifica se esta é uma pasta de nível raiz."""
         return self.parent_id is None
     
     def get_folder_name(self) -> str:
-        """Get the folder name from the path."""
+        """Obtém o nome da pasta a partir do caminho."""
         if not self.path:
             return self.name
         return self.path.split("/")[-1]
     
     def get_parent_path(self) -> str:
-        """Get the parent path."""
+        """Obtém o caminho do pai."""
         if not self.path or "/" not in self.path:
             return ""
         return "/".join(self.path.split("/")[:-1])

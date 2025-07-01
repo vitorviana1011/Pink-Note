@@ -11,61 +11,61 @@ from presentation.components.base_component import BaseComponent
 from shared.constants import SUPPORTED_ATTACHMENT_EXTENSIONS
 
 class NoteEditorComponent(BaseComponent):
-    """Component for editing notes and managing attachments."""
+    """Componente para edição de notas e gerenciamento de anexos."""
     
-    # Define signals
-    note_saved = pyqtSignal(int)  # Emitted when a note is saved (note_id)
-    note_deleted = pyqtSignal(int)  # Emitted when a note is deleted (note_id)
+    # Define sinais
+    note_saved = pyqtSignal(int)  # Emitido quando uma nota é salva (note_id)
+    note_deleted = pyqtSignal(int)  # Emitido quando uma nota é excluída (note_id)
     
     def __init__(self, parent=None, controllers=None):
-        """Initialize the component.
+        """Inicializa o componente.
         
         Args:
-            parent: The parent widget
-            controllers: A dictionary of controllers
+            parent: O widget pai
+            controllers: Um dicionário de controladores
         """
         super().__init__(parent, controllers)
         
-        # Current note data
+        # Dados da nota atual
         self.current_note = None
         self.current_folder_id = None
         self.is_new_note = False
         self.attachments = []
     
     def _init_ui(self):
-        """Initialize the UI components."""
-        # Create main layout
+        """Inicializa os componentes da interface."""
+        # Cria o layout principal
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(10, 10, 10, 10)
         
-        # Title input
+        # Campo de título
         self.title_input = QLineEdit(self)
-        self.title_input.setPlaceholderText("Note Title")
+        self.title_input.setPlaceholderText("Título da Nota")
         self.title_input.setStyleSheet("font-size: 16px; padding: 5px;")
         main_layout.addWidget(self.title_input)
         
-        # Content editor
+        # Editor de conteúdo
         self.content_editor = QTextEdit(self)
-        self.content_editor.setPlaceholderText("Write your note here...")
+        self.content_editor.setPlaceholderText("Escreva sua nota aqui...")
         self.content_editor.setStyleSheet("font-size: 14px; padding: 5px;")
         main_layout.addWidget(self.content_editor)
         
-        # Attachments section
+        # Seção de anexos
         attachment_layout = QVBoxLayout()
         
-        # Attachments header
+        # Cabeçalho de anexos
         attachment_header = QHBoxLayout()
-        attachment_label = QLabel("Attachments", self)
+        attachment_label = QLabel("Anexos", self)
         attachment_label.setStyleSheet("font-weight: bold;")
         attachment_header.addWidget(attachment_label)
         
-        # Add attachment button
-        self.add_attachment_btn = QPushButton("Add File", self)
+        # Botão de adicionar anexo
+        self.add_attachment_btn = QPushButton("Adicionar Arquivo", self)
         attachment_header.addWidget(self.add_attachment_btn)
         attachment_header.addStretch()
         attachment_layout.addLayout(attachment_header)
         
-        # Attachments list
+        # Lista de anexos
         self.attachments_list = QListWidget(self)
         self.attachments_list.setContextMenuPolicy(Qt.CustomContextMenu)
         self.attachments_list.setMaximumHeight(100)
@@ -73,135 +73,130 @@ class NoteEditorComponent(BaseComponent):
         
         main_layout.addLayout(attachment_layout)
         
-        # Buttons layout
+        # Layout dos botões
         buttons_layout = QHBoxLayout()
         buttons_layout.addStretch()
         
-        # Save button
-        self.save_btn = QPushButton("Save", self)
+        # Botão salvar
+        self.save_btn = QPushButton("Salvar", self)
         self.save_btn.setStyleSheet("padding: 5px 15px;")
         buttons_layout.addWidget(self.save_btn)
         
-        # Delete button
-        self.delete_btn = QPushButton("Delete", self)
+        # Botão excluir
+        self.delete_btn = QPushButton("Excluir", self)
         self.delete_btn.setStyleSheet("padding: 5px 15px;")
         buttons_layout.addWidget(self.delete_btn)
         
         main_layout.addLayout(buttons_layout)
         
-        # Status label
+        # Rótulo de status
         self.status_label = QLabel(self)
         self.status_label.setStyleSheet("color: gray; font-style: italic;")
         main_layout.addWidget(self.status_label)
         
-        # Set initial state
+        # Estado inicial
         self.clear_editor()
     
     def _connect_signals(self):
-        """Connect signals and slots."""
-        # Connect buttons
+        """Conecta sinais e slots."""
         self.save_btn.clicked.connect(self._save_note)
         self.delete_btn.clicked.connect(self._delete_note)
         self.add_attachment_btn.clicked.connect(self._add_attachment)
-        
-        # Connect attachment list signals
         self.attachments_list.itemDoubleClicked.connect(self._open_attachment)
         self.attachments_list.customContextMenuRequested.connect(self._show_attachment_context_menu)
-        
-        # Connect editor signals for auto-save functionality
         self.title_input.textChanged.connect(self._update_status)
         self.content_editor.textChanged.connect(self._update_status)
     
     def set_folder(self, folder_id: int):
-        """Set the current folder ID.
+        """Define o ID da pasta atual.
         
         Args:
-            folder_id: The folder ID
+            folder_id: O ID da pasta
         """
         self.current_folder_id = folder_id
     
     def load_note(self, note_id: int):
-        """Load a note into the editor.
+        """Carrega uma nota no editor.
         
         Args:
-            note_id: The note ID
+            note_id: O ID da nota
         """
         note_controller = self.controllers.get('note_controller')
         if not note_controller:
             return
         
-        # Get the note
+        # Obtém a nota
         note = note_controller.get_note_by_id(note_id)
         if not note:
             return
         
-        # Set the current note
+        # Define a nota atual
         self.current_note = note
         self.is_new_note = False
         
-        # Update UI
+        # Atualiza UI
         self.title_input.setText(note.get('title', ''))
         self.content_editor.setText(note.get('content', ''))
         self.delete_btn.setEnabled(True)
         
-        # Load attachments
+        # Carrega anexos
         self._load_attachments(note_id)
         
-        # Update status
+        # Atualiza status
         self._update_status()
     
     def new_note(self):
-        """Create a new note in the editor."""
-        # Clear the editor
+        """Cria uma nova nota no editor."""
+        # Limpa o editor
         self.clear_editor()
         
-        # Set as new note
+        # Define como nova nota
         self.is_new_note = True
         self.current_note = None
         
-        # Enable editing
+        # Habilita edição
         self.title_input.setEnabled(True)
         self.content_editor.setEnabled(True)
         self.save_btn.setEnabled(True)
         self.delete_btn.setEnabled(False)
         
-        # Set focus to title
+        # Foca no campo de título
         self.title_input.setFocus()
         
-        # Update status
+        # Atualiza status
         self._update_status()
     
     def clear_editor(self):
-        """Clear the editor."""
-        # Clear inputs
+        """Limpa o editor."""
+        # Limpa campos
         self.title_input.clear()
         self.content_editor.clear()
         self.attachments_list.clear()
         
-        # Disable editing
+        # Desabilita edição
         self.title_input.setEnabled(False)
         self.content_editor.setEnabled(False)
         self.save_btn.setEnabled(False)
         self.delete_btn.setEnabled(False)
         self.add_attachment_btn.setEnabled(False)
         
-        # Clear current note
+        # Limpa nota atual
         self.current_note = None
         self.is_new_note = False
         self.attachments = []
         
-        # Update status
-        self.status_label.setText("No note selected")
+        # Atualiza status
+        self.status_label.setText("Nenhuma nota selecionada")
     
     def _save_note(self):
-        """Save the current note."""
-        # Get note data
+        """Salva a nota atual."""
+        # Obtém dados da nota
         title = self.title_input.text().strip()
         content = self.content_editor.toPlainText()
         
-        # Validate title
+        # Valida título
         if not title:
-            QMessageBox.warning(self, "Missing Title", "Please enter a title for the note.")
+            QMessageBox.warning(self, "Título Ausente", "Por favor, insira um título para a nota.")
             self.title_input.setFocus()
             return
         
@@ -209,11 +204,11 @@ class NoteEditorComponent(BaseComponent):
         if not note_controller:
             return
         
-        # Save note
+        # Salva nota
         if self.is_new_note:
-            # Create new note
+            # Cria nova nota
             if self.current_folder_id is None:
-                QMessageBox.warning(self, "No Folder Selected", "Please select a folder for the note.")
+                QMessageBox.warning(self, "Nenhuma Pasta Selecionada", "Por favor, selecione uma pasta para a nota.")
                 return
             
             note = note_controller.create_note(
@@ -227,16 +222,14 @@ class NoteEditorComponent(BaseComponent):
                 self.is_new_note = False
                 self.delete_btn.setEnabled(True)
                 self.add_attachment_btn.setEnabled(True)
-                
-                # Emit signal
+                # Emite sinal
                 self.note_saved.emit(note['id'])
         else:
-            # Update existing note
-            # Make sure current_note is a dictionary and has an id
+            # Atualiza nota existente
             if not self.current_note or not isinstance(self.current_note, dict) or 'id' not in self.current_note:
-                # If current_note is invalid, create a new note instead
+                # Se a nota atual for inválida, cria uma nova nota
                 if self.current_folder_id is None:
-                    QMessageBox.warning(self, "No Folder Selected", "Please select a folder for the note.")
+                    QMessageBox.warning(self, "Nenhuma Pasta Selecionada", "Por favor, selecione uma pasta para a nota.")
                     return
                 
                 note = note_controller.create_note(
@@ -250,11 +243,9 @@ class NoteEditorComponent(BaseComponent):
                     self.is_new_note = False
                     self.delete_btn.setEnabled(True)
                     self.add_attachment_btn.setEnabled(True)
-                    
-                    # Emit signal
                     self.note_saved.emit(note['id'])
             else:
-                # Update the existing note
+                # Atualiza a nota existente
                 note = note_controller.update_note(
                     note_id=self.current_note['id'],
                     title=title,
@@ -263,23 +254,21 @@ class NoteEditorComponent(BaseComponent):
                 
                 if note:
                     self.current_note = note
-                    
-                    # Emit signal
                     self.note_saved.emit(note['id'])
         
-        # Update status
+        # Atualiza status
         self._update_status(saved=True)
     
     def _delete_note(self):
-        """Delete the current note."""
+        """Exclui a nota atual."""
         if not self.current_note or not isinstance(self.current_note, dict) or 'id' not in self.current_note:
             return
         
-        # Confirm deletion
+        # Confirma exclusão
         reply = QMessageBox.question(
             self,
-            "Confirm Deletion",
-            "Are you sure you want to delete this note? This action cannot be undone.",
+            "Confirmar Exclusão",
+            "Tem certeza de que deseja excluir esta nota? Esta ação não pode ser desfeita.",
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.No
         )
@@ -289,52 +278,49 @@ class NoteEditorComponent(BaseComponent):
             if note_controller:
                 note_id = self.current_note['id']
                 if note_controller.delete_note(note_id):
-                    # Clear the editor
+                    # Limpa o editor
                     self.clear_editor()
-                    
-                    # Emit signal
+                    # Emite sinal
                     self.note_deleted.emit(note_id)
     
     def _load_attachments(self, note_id: int):
-        """Load attachments for a note.
+        """Carrega anexos para uma nota.
         
         Args:
-            note_id: The note ID
+            note_id: O ID da nota
         """
         attachment_controller = self.controllers.get('attachment_controller')
         if not attachment_controller:
             return
         
-        # Clear the list
+        # Limpa a lista
         self.attachments_list.clear()
         
-        # Get attachments
+        # Obtém anexos
         self.attachments = attachment_controller.get_attachments_for_note(note_id)
         
-        # Add to list
+        # Adiciona à lista
         for attachment in self.attachments:
             item = QListWidgetItem(attachment.get('file_name', 'Unnamed Attachment'))
             item.setData(Qt.UserRole, attachment['id'])
             self.attachments_list.addItem(item)
         
-        # Enable add attachment button
+        # Habilita botão de adicionar anexo
         self.add_attachment_btn.setEnabled(True)
     
     def _add_attachment(self):
-        """Add an attachment to the current note."""
+        """Adiciona um anexo à nota atual."""
         if not self.current_note or not isinstance(self.current_note, dict) or 'id' not in self.current_note:
             return
         
-        # Create filter string for file dialog
-        filter_str = "All Files (*.*);;"
-        # Create a filter for supported attachments
+        # Cria filtro para o diálogo de arquivos
+        filter_str = "Todos os Arquivos (*.*);;"
         ext_list = " ".join(f"*.{ext.lstrip('.')}" for ext in SUPPORTED_ATTACHMENT_EXTENSIONS)
-        filter_str += f"Supported Files ({ext_list});;"
+        filter_str += f"Arquivos Suportados ({ext_list});;"
         
-        # Open file dialog
         file_path, _ = QFileDialog.getOpenFileName(
             self,
-            "Select Attachment",
+            "Selecionar Anexo",
             "",
             filter_str
         )
@@ -342,26 +328,22 @@ class NoteEditorComponent(BaseComponent):
         if file_path and os.path.exists(file_path):
             attachment_controller = self.controllers.get('attachment_controller')
             if attachment_controller:
-                # Add attachment
                 attachment = attachment_controller.add_attachment(
                     note_id=self.current_note['id'],
                     file_path=file_path
                 )
                 
                 if attachment:
-                    # Add to list
                     item = QListWidgetItem(attachment.get('file_name', 'Unnamed Attachment'))
                     item.setData(Qt.UserRole, attachment['id'])
                     self.attachments_list.addItem(item)
-                    
-                    # Update attachments list
                     self.attachments.append(attachment)
     
     def _open_attachment(self, item: QListWidgetItem):
-        """Open an attachment.
+        """Abre um anexo.
         
         Args:
-            item: The list item representing the attachment
+            item: O item da lista que representa o anexo
         """
         attachment_id = item.data(Qt.UserRole)
         attachment_controller = self.controllers.get('attachment_controller')
@@ -369,45 +351,35 @@ class NoteEditorComponent(BaseComponent):
             attachment_controller.open_attachment(attachment_id)
     
     def _show_attachment_context_menu(self, position):
-        """Show context menu for the attachment at the given position.
+        """Mostra o menu de contexto para o anexo na posição dada.
         
         Args:
-            position: The position where to show the menu
+            position: A posição onde mostrar o menu
         """
-        # Get the item at the position
         item = self.attachments_list.itemAt(position)
         if not item:
             return
         
-        # Get the attachment ID
         attachment_id = item.data(Qt.UserRole)
-        
-        # Create context menu
         menu = QMenu(self)
-        
-        # Add actions
-        open_action = QAction("Open", self)
+        open_action = QAction("Abrir", self)
         open_action.triggered.connect(lambda: self._open_attachment(item))
         menu.addAction(open_action)
-        
-        delete_action = QAction("Delete", self)
+        delete_action = QAction("Excluir", self)
         delete_action.triggered.connect(lambda: self._delete_attachment(attachment_id))
         menu.addAction(delete_action)
-        
-        # Show the menu
         menu.exec_(self.attachments_list.mapToGlobal(position))
     
     def _delete_attachment(self, attachment_id: int):
-        """Delete an attachment.
+        """Exclui um anexo.
         
         Args:
-            attachment_id: The attachment ID
+            attachment_id: O ID do anexo
         """
-        # Confirm deletion
         reply = QMessageBox.question(
             self,
-            "Confirm Deletion",
-            "Are you sure you want to delete this attachment? This action cannot be undone.",
+            "Confirmar Exclusão",
+            "Tem certeza de que deseja excluir este anexo? Esta ação não pode ser desfeita.",
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.No
         )
@@ -415,28 +387,25 @@ class NoteEditorComponent(BaseComponent):
         if reply == QMessageBox.Yes:
             attachment_controller = self.controllers.get('attachment_controller')
             if attachment_controller and attachment_controller.delete_attachment(attachment_id):
-                # Remove from list
                 for i in range(self.attachments_list.count()):
                     item = self.attachments_list.item(i)
                     if item.data(Qt.UserRole) == attachment_id:
                         self.attachments_list.takeItem(i)
                         break
-                
-                # Update attachments list
                 self.attachments = [a for a in self.attachments if a['id'] != attachment_id]
     
     def _update_status(self, saved=False):
-        """Update the status label.
+        """Atualiza o rótulo de status.
         
         Args:
-            saved: Whether the note was just saved
+            saved: Se a nota foi salva recentemente
         """
         if self.current_note:
             if saved:
-                self.status_label.setText(f"Saved at {datetime.datetime.now().strftime('%H:%M:%S')}")
+                self.status_label.setText(f"Salvo em {datetime.datetime.now().strftime('%H:%M:%S')}")
             else:
-                self.status_label.setText("Editing note")
+                self.status_label.setText("Editando nota")
         elif self.is_new_note:
-            self.status_label.setText("Creating new note")
+            self.status_label.setText("Criando nova nota")
         else:
-            self.status_label.setText("No note selected")
+            self.status_label.setText("Nenhuma nota selecionada")

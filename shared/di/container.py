@@ -25,23 +25,23 @@ from infrastructure.database.db_init import DatabaseInitializer
 from infrastructure.storage.file_storage import FileStorage
 
 class Container:
-    """Dependency Injection Container for the application.
+    """Container de Injeção de Dependências da aplicação.
     
-    This class manages the creation and lifecycle of all application dependencies,
-    following the Dependency Injection pattern to promote loose coupling.
+    Esta classe gerencia a criação e o ciclo de vida de todas as dependências da aplicação,
+    seguindo o padrão de Injeção de Dependências para promover baixo acoplamento.
     """
     
     def __init__(self, config: Dict[str, Any]):
-        """Initialize the container with application configuration.
+        """Inicializa o container com a configuração da aplicação.
         
         Args:
-            config: A dictionary containing application configuration
+            config: Um dicionário contendo a configuração da aplicação
         """
         self.config = config
         self._instances = {}
     
     def get_db_connection(self) -> sqlite3.Connection:
-        """Get or create the database connection."""
+        """Obtém ou cria a conexão com o banco de dados."""
         if 'db_connection' not in self._instances:
             db_path = self.config.get('db_path', 'notepad.db')
             initializer = DatabaseInitializer(db_path)
@@ -50,7 +50,7 @@ class Container:
         return self._instances['db_connection']
     
     def get_file_storage(self) -> FileStorage:
-        """Get or create the file storage service."""
+        """Obtém ou cria o serviço de armazenamento de arquivos."""
         if 'file_storage' not in self._instances:
             storage_path = self.config.get('storage_path', 'attachments')
             self._instances['file_storage'] = FileStorage(storage_path)
@@ -58,56 +58,56 @@ class Container:
         return self._instances['file_storage']
     
     def get_note_repository(self) -> NoteRepository:
-        """Get or create the note repository."""
+        """Obtém ou cria o repositório de notas."""
         if 'note_repository' not in self._instances:
             self._instances['note_repository'] = NoteRepositoryImpl(self.get_db_connection())
         
         return self._instances['note_repository']
     
     def get_folder_repository(self) -> FolderRepository:
-        """Get or create the folder repository."""
+        """Obtém ou cria o repositório de pastas."""
         if 'folder_repository' not in self._instances:
             self._instances['folder_repository'] = FolderRepositoryImpl(self.get_db_connection())
         
         return self._instances['folder_repository']
     
     def get_event_repository(self) -> EventRepository:
-        """Get or create the event repository."""
+        """Obtém ou cria o repositório de eventos."""
         if 'event_repository' not in self._instances:
             self._instances['event_repository'] = EventRepositoryImpl(self.get_db_connection())
         
         return self._instances['event_repository']
     
     def get_attachment_repository(self) -> AttachmentRepository:
-        """Get or create the attachment repository."""
+        """Obtém ou cria o repositório de anexos."""
         if 'attachment_repository' not in self._instances:
             self._instances['attachment_repository'] = AttachmentRepositoryImpl(self.get_db_connection())
         
         return self._instances['attachment_repository']
     
     def get_note_service(self) -> NoteService:
-        """Get or create the note service."""
+        """Obtém ou cria o serviço de notas."""
         if 'note_service' not in self._instances:
             self._instances['note_service'] = NoteServiceImpl(self.get_note_repository())
         
         return self._instances['note_service']
     
     def get_folder_service(self) -> FolderService:
-        """Get or create the folder service."""
+        """Obtém ou cria o serviço de pastas."""
         if 'folder_service' not in self._instances:
             self._instances['folder_service'] = FolderServiceImpl(self.get_folder_repository())
         
         return self._instances['folder_service']
     
     def get_event_service(self) -> EventService:
-        """Get or create the event service."""
+        """Obtém ou cria o serviço de eventos."""
         if 'event_service' not in self._instances:
             self._instances['event_service'] = EventServiceImpl(self.get_event_repository())
         
         return self._instances['event_service']
     
     def get_attachment_service(self) -> AttachmentService:
-        """Get or create the attachment service."""
+        """Obtém ou cria o serviço de anexos."""
         if 'attachment_service' not in self._instances:
             self._instances['attachment_service'] = AttachmentServiceImpl(
                 self.get_attachment_repository()
@@ -116,7 +116,7 @@ class Container:
         return self._instances['attachment_service']
     
     def get_note_controller(self):
-        """Get or create the note controller."""
+        """Obtém ou cria o controlador de notas."""
         if 'note_controller' not in self._instances:
             from presentation.controllers.note_controller import NoteController
             self._instances['note_controller'] = NoteController(
@@ -127,7 +127,7 @@ class Container:
         return self._instances['note_controller']
     
     def get_folder_controller(self):
-        """Get or create the folder controller."""
+        """Obtém ou cria o controlador de pastas."""
         if 'folder_controller' not in self._instances:
             from presentation.controllers.folder_controller import FolderController
             self._instances['folder_controller'] = FolderController(
@@ -137,7 +137,7 @@ class Container:
         return self._instances['folder_controller']
     
     def get_event_controller(self):
-        """Get or create the event controller."""
+        """Obtém ou cria o controlador de eventos."""
         if 'event_controller' not in self._instances:
             from presentation.controllers.event_controller import EventController
             self._instances['event_controller'] = EventController(
@@ -147,7 +147,7 @@ class Container:
         return self._instances['event_controller']
     
     def get_attachment_controller(self):
-        """Get or create the attachment controller."""
+        """Obtém ou cria o controlador de anexos."""
         if 'attachment_controller' not in self._instances:
             from presentation.controllers.attachment_controller import AttachmentController
             self._instances['attachment_controller'] = AttachmentController(

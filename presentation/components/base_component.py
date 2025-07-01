@@ -2,45 +2,45 @@ from typing import Optional, Dict, Any
 from PyQt5.QtWidgets import QWidget
 
 class BaseComponent(QWidget):
-    """Base class for all UI components in the presentation layer.
+    """Classe base para todos os componentes de UI na camada de apresentação.
     
-    This class provides common functionality for UI components, such as
-    access to controllers and event handling.
+    Esta classe fornece funcionalidades comuns para componentes de UI, como
+    acesso a controladores e manipulação de eventos.
     """
     
     def __init__(self, parent: Optional[QWidget] = None, controllers: Optional[Dict[str, Any]] = None):
-        """Initialize the component.
+        """Inicializa o componente.
         
         Args:
-            parent: The parent widget
-            controllers: A dictionary of controllers
+            parent: O widget pai
+            controllers: Um dicionário de controladores
         """
         super().__init__(parent)
         self.controllers = controllers or {}
         
-        # Initialize UI
+        # Inicializa a interface
         self._init_ui()
         
-        # Connect signals and slots
+        # Conecta sinais e slots
         self._connect_signals()
     
     def _init_ui(self):
-        """Initialize the UI components.
+        """Inicializa os componentes da interface.
         
-        This method should be overridden by subclasses to set up their UI.
+        Este método deve ser sobrescrito pelas subclasses para configurar a interface.
         """
         pass
     
     def _connect_signals(self):
-        """Connect signals and slots.
+        """Conecta sinais e slots.
         
-        This method should be overridden by subclasses to connect their signals and slots.
+        Este método deve ser sobrescrito pelas subclasses para conectar seus sinais e slots.
         """
         pass
     
     def refresh(self):
-        """Refresh the component's data and UI.
+        """Atualiza os dados e a interface do componente.
         
-        This method should be overridden by subclasses to refresh their data and UI.
+        Este método deve ser sobrescrito pelas subclasses para atualizar seus dados e interface.
         """
         pass

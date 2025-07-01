@@ -4,123 +4,123 @@ from datetime import datetime
 from typing import Optional
 
 class Logger:
-    """A simple logger utility for the application.
+    """Um logger simples para a aplicação.
     
-    This class provides a centralized logging mechanism with different
-    log levels and output options (console and/or file).
+    Esta classe fornece um mecanismo centralizado de logging com diferentes
+    níveis de log e opções de saída (console e/ou arquivo).
     """
     
-    # Singleton instance
+    # Instância singleton
     _instance = None
     
     @classmethod
     def get_instance(cls, log_level: int = logging.INFO, log_to_file: bool = True, log_dir: Optional[str] = None):
-        """Get or create the singleton logger instance.
+        """Obtém ou cria a instância singleton do logger.
         
         Args:
-            log_level: The logging level (default: INFO)
-            log_to_file: Whether to log to a file (default: True)
-            log_dir: Directory for log files (default: 'logs' in the application directory)
+            log_level: O nível de logging (padrão: INFO)
+            log_to_file: Se deve registrar em arquivo (padrão: True)
+            log_dir: Diretório para arquivos de log (padrão: 'logs' no diretório da aplicação)
             
         Returns:
-            The Logger instance
+            A instância do Logger
         """
         if cls._instance is None:
             cls._instance = Logger(log_level, log_to_file, log_dir)
         return cls._instance
     
     def __init__(self, log_level: int = logging.INFO, log_to_file: bool = True, log_dir: Optional[str] = None):
-        """Initialize the logger.
+        """Inicializa o logger.
         
         Args:
-            log_level: The logging level (default: INFO)
-            log_to_file: Whether to log to a file (default: True)
-            log_dir: Directory for log files (default: 'logs' in the application directory)
+            log_level: O nível de logging (padrão: INFO)
+            log_to_file: Se deve registrar em arquivo (padrão: True)
+            log_dir: Diretório para arquivos de log (padrão: 'logs' no diretório da aplicação)
         """
         self.logger = logging.getLogger('notepad')
         self.logger.setLevel(log_level)
         
-        # Clear any existing handlers
+        # Limpa handlers existentes
         if self.logger.handlers:
             self.logger.handlers.clear()
         
-        # Create console handler
+        # Cria handler de console
         console_handler = logging.StreamHandler()
         console_handler.setLevel(log_level)
         
-        # Create formatter
+        # Cria formatador
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         console_handler.setFormatter(formatter)
         
-        # Add console handler to logger
+        # Adiciona handler de console ao logger
         self.logger.addHandler(console_handler)
         
-        # Add file handler if requested
+        # Adiciona handler de arquivo se solicitado
         if log_to_file:
             if log_dir is None:
-                # Default log directory is 'logs' in the application directory
+                # Diretório padrão de logs é 'logs' no diretório da aplicação
                 base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
                 log_dir = os.path.join(base_dir, 'logs')
             
-            # Ensure log directory exists
+            # Garante que o diretório de logs exista
             os.makedirs(log_dir, exist_ok=True)
             
-            # Create log file with timestamp
+            # Cria arquivo de log com timestamp
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
             log_file = os.path.join(log_dir, f'notepad_{timestamp}.log')
             
-            # Create file handler
+            # Cria handler de arquivo
             file_handler = logging.FileHandler(log_file)
             file_handler.setLevel(log_level)
             file_handler.setFormatter(formatter)
             
-            # Add file handler to logger
+            # Adiciona handler de arquivo ao logger
             self.logger.addHandler(file_handler)
     
     def debug(self, message: str):
-        """Log a debug message.
+        """Registra uma mensagem de debug.
         
         Args:
-            message: The message to log
+            message: A mensagem a ser registrada
         """
         self.logger.debug(message)
     
     def info(self, message: str):
-        """Log an info message.
+        """Registra uma mensagem de informação.
         
         Args:
-            message: The message to log
+            message: A mensagem a ser registrada
         """
         self.logger.info(message)
     
     def warning(self, message: str):
-        """Log a warning message.
+        """Registra uma mensagem de aviso.
         
         Args:
-            message: The message to log
+            message: A mensagem a ser registrada
         """
         self.logger.warning(message)
     
     def error(self, message: str):
-        """Log an error message.
+        """Registra uma mensagem de erro.
         
         Args:
-            message: The message to log
+            message: A mensagem a ser registrada
         """
         self.logger.error(message)
     
     def critical(self, message: str):
-        """Log a critical message.
+        """Registra uma mensagem crítica.
         
         Args:
-            message: The message to log
+            message: A mensagem a ser registrada
         """
         self.logger.critical(message)
     
     def exception(self, message: str):
-        """Log an exception message with traceback.
+        """Registra uma exceção com traceback.
         
         Args:
-            message: The message to log
+            message: A mensagem a ser registrada
         """
         self.logger.exception(message)

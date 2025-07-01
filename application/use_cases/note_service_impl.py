@@ -6,28 +6,28 @@ from domain.value_objects.search_criteria import SearchCriteria
 from application.interfaces.note_service import NoteService
 
 class NoteServiceImpl(NoteService):
-    """Implementation of the note service use cases."""
+    """Implementação dos casos de uso do serviço de notas."""
     
     def __init__(self, note_repository: NoteRepository):
         self.note_repository = note_repository
     
     def get_all_notes(self, folder_id: Optional[int] = None) -> List[Note]:
-        """Get all notes, optionally filtered by folder ID."""
+        """Obtém todas as notas, opcionalmente filtradas pelo ID da pasta."""
         return self.note_repository.get_all_notes(folder_id)
     
     def get_note_by_id(self, note_id: int) -> Optional[Note]:
-        """Get a note by its ID."""
+        """Obtém uma nota pelo seu ID."""
         return self.note_repository.get_note_by_id(note_id)
     
     def create_note(self, title: str, content: str, folder_id: Optional[int] = None) -> int:
-        """Create a new note and return its ID."""
+        """Cria uma nova nota e retorna seu ID."""
         note = Note(title=title, content=content)
         if folder_id is not None:
             note.folder_id = folder_id
         return self.note_repository.add_note(note)
     
     def update_note(self, note_id: int, title: str, content: str) -> bool:
-        """Update an existing note and return success status."""
+        """Atualiza uma nota existente e retorna o status de sucesso."""
         note = self.note_repository.get_note_by_id(note_id)
         if note is None:
             return False
@@ -37,26 +37,26 @@ class NoteServiceImpl(NoteService):
         return self.note_repository.update_note(note)
     
     def delete_note(self, note_id: int) -> bool:
-        """Delete a note by its ID and return success status."""
+        """Exclui uma nota pelo seu ID e retorna o status de sucesso."""
         return self.note_repository.delete_note(note_id)
     
     def move_note(self, note_id: int, folder_id: int) -> bool:
-        """Move a note to a different folder and return success status."""
+        """Move uma nota para outra pasta e retorna o status de sucesso."""
         return self.note_repository.move_note(note_id, folder_id)
     
     def search_notes(self, criteria: SearchCriteria) -> List[Note]:
-        """Search for notes based on the provided criteria."""
-        # This is a simplified implementation that delegates to the repository
-        # In a more complex system, we might apply additional business logic here
+        """Busca notas com base nos critérios fornecidos."""
+        # Esta é uma implementação simplificada que delega ao repositório
+        # Em um sistema mais complexo, poderíamos aplicar lógica de negócio adicional aqui
         return self.note_repository.search_notes(criteria)
         
     def get_notes_by_folder(self, folder_id: int) -> List[Note]:
-        """Get all notes in a specific folder.
+        """Obtém todas as notas em uma pasta específica.
         
         Args:
-            folder_id: The folder ID
+            folder_id: O ID da pasta
             
         Returns:
-            A list of notes in the folder
+            Uma lista de notas na pasta
         """
         return self.get_all_notes(folder_id=folder_id)

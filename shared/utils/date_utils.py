@@ -2,67 +2,67 @@ from datetime import datetime, date, timedelta
 from typing import List, Optional, Tuple
 
 class DateUtils:
-    """Utility class for date and time operations."""
+    """Classe utilitária para operações com datas e horários."""
     
     @staticmethod
     def get_current_datetime() -> datetime:
-        """Get the current date and time.
+        """Obtém a data e hora atual.
         
         Returns:
-            The current datetime
+            O datetime atual
         """
         return datetime.now()
     
     @staticmethod
     def get_current_date() -> date:
-        """Get the current date.
+        """Obtém a data atual.
         
         Returns:
-            The current date
+            A data atual
         """
         return date.today()
     
     @staticmethod
     def format_date(dt: date, format_str: str = '%d/%m/%Y') -> str:
-        """Format a date according to the specified format.
+        """Formata uma data de acordo com o formato especificado.
         
         Args:
-            dt: The date to format
-            format_str: The format string (default: '%d/%m/%Y')
+            dt: A data a ser formatada
+            format_str: A string de formato (padrão: '%d/%m/%Y')
             
         Returns:
-            The formatted date string
+            A data formatada como string
         """
         return dt.strftime(format_str)
     
     @staticmethod
     def format_datetime(dt: datetime, format_str: str = '%d/%m/%Y %H:%M:%S') -> str:
-        """Format a datetime according to the specified format.
+        """Formata um datetime de acordo com o formato especificado.
         
         Args:
-            dt: The datetime to format
-            format_str: The format string (default: '%d/%m/%Y %H:%M:%S')
+            dt: O datetime a ser formatado
+            format_str: A string de formato (padrão: '%d/%m/%Y %H:%M:%S')
             
         Returns:
-            The formatted datetime string
+            O datetime formatado como string
         """
         return dt.strftime(format_str)
     
     @staticmethod
     def parse_date(date_str: str, format_str: str = '%d/%m/%Y') -> Optional[date]:
-        """Parse a date string according to the specified format.
+        """Converte uma string em data de acordo com o formato especificado.
         
         Args:
-            date_str: The date string to parse
-            format_str: The format string (default: '%d/%m/%Y')
+            date_str: A string de data a ser convertida
+            format_str: A string de formato (padrão: '%d/%m/%Y')
             
         Returns:
-            The parsed date or None if parsing fails
+            A data convertida ou None se falhar
         """
         try:
             return datetime.strptime(date_str, format_str).date()
         except ValueError:
-            # Try to parse ISO format (YYYY-MM-DD) if the default format fails
+            # Tenta converter no formato ISO (YYYY-MM-DD) se o padrão falhar
             try:
                 return datetime.strptime(date_str, '%Y-%m-%d').date()
             except ValueError:
@@ -70,14 +70,14 @@ class DateUtils:
     
     @staticmethod
     def parse_datetime(datetime_str: str, format_str: str = '%d/%m/%Y %H:%M:%S') -> Optional[datetime]:
-        """Parse a datetime string according to the specified format.
+        """Converte uma string em datetime de acordo com o formato especificado.
         
         Args:
-            datetime_str: The datetime string to parse
-            format_str: The format string (default: '%d/%m/%Y %H:%M:%S')
+            datetime_str: A string de datetime a ser convertida
+            format_str: A string de formato (padrão: '%d/%m/%Y %H:%M:%S')
             
         Returns:
-            The parsed datetime or None if parsing fails
+            O datetime convertido ou None se falhar
         """
         try:
             return datetime.strptime(datetime_str, format_str)
@@ -86,14 +86,14 @@ class DateUtils:
     
     @staticmethod
     def parse_time(time_str: str, format_str: str = '%H:%M') -> Optional[datetime.time]:
-        """Parse a time string according to the specified format.
+        """Converte uma string em hora de acordo com o formato especificado.
         
         Args:
-            time_str: The time string to parse
-            format_str: The format string (default: '%H:%M')
+            time_str: A string de hora a ser convertida
+            format_str: A string de formato (padrão: '%H:%M')
             
         Returns:
-            The parsed time or None if parsing fails
+            A hora convertida ou None se falhar
         """
         try:
             return datetime.strptime(time_str, format_str).time()
@@ -102,18 +102,18 @@ class DateUtils:
     
     @staticmethod
     def get_month_range(year: int, month: int) -> Tuple[date, date]:
-        """Get the start and end dates for a specific month.
+        """Obtém o primeiro e o último dia de um mês específico.
         
         Args:
-            year: The year
-            month: The month (1-12)
+            year: O ano
+            month: O mês (1-12)
             
         Returns:
-            A tuple with the first and last day of the month
+            Uma tupla com o primeiro e o último dia do mês
         """
         start_date = date(year, month, 1)
         
-        # Calculate the last day of the month
+        # Calcula o último dia do mês
         if month == 12:
             end_date = date(year + 1, 1, 1) - timedelta(days=1)
         else:
@@ -123,32 +123,32 @@ class DateUtils:
     
     @staticmethod
     def get_week_range(dt: date) -> Tuple[date, date]:
-        """Get the start and end dates for the week containing the specified date.
+        """Obtém o primeiro e o último dia da semana que contém a data especificada.
         
         Args:
-            dt: The date
+            dt: A data
             
         Returns:
-            A tuple with the first (Monday) and last day (Sunday) of the week
+            Uma tupla com o primeiro (segunda-feira) e o último dia (domingo) da semana
         """
-        # Calculate the start of the week (Monday)
+        # Calcula o início da semana (segunda-feira)
         start_date = dt - timedelta(days=dt.weekday())
         
-        # Calculate the end of the week (Sunday)
+        # Calcula o fim da semana (domingo)
         end_date = start_date + timedelta(days=6)
         
         return start_date, end_date
     
     @staticmethod
     def get_days_in_month(year: int, month: int) -> List[date]:
-        """Get a list of all days in a specific month.
+        """Obtém uma lista com todos os dias de um mês específico.
         
         Args:
-            year: The year
-            month: The month (1-12)
+            year: O ano
+            month: O mês (1-12)
             
         Returns:
-            A list of dates for each day in the month
+            Uma lista de datas para cada dia do mês
         """
         start_date, end_date = DateUtils.get_month_range(year, month)
         
@@ -162,13 +162,13 @@ class DateUtils:
     
     @staticmethod
     def get_days_in_week(dt: date) -> List[date]:
-        """Get a list of all days in the week containing the specified date.
+        """Obtém uma lista com todos os dias da semana que contém a data especificada.
         
         Args:
-            dt: The date
+            dt: A data
             
         Returns:
-            A list of dates for each day in the week
+            Uma lista de datas para cada dia da semana
         """
         start_date, end_date = DateUtils.get_week_range(dt)
         
@@ -182,31 +182,31 @@ class DateUtils:
     
     @staticmethod
     def is_same_day(dt1: datetime, dt2: datetime) -> bool:
-        """Check if two datetimes are on the same day.
+        """Verifica se dois datetimes estão no mesmo dia.
         
         Args:
-            dt1: The first datetime
-            dt2: The second datetime
+            dt1: O primeiro datetime
+            dt2: O segundo datetime
             
         Returns:
-            True if both datetimes are on the same day, False otherwise
+            True se ambos estiverem no mesmo dia, False caso contrário
         """
         return dt1.date() == dt2.date()
     
     @staticmethod
     def time_elapsed_since(dt: datetime) -> str:
-        """Get a human-readable string representing the time elapsed since the specified datetime.
+        """Obtém uma string legível representando o tempo decorrido desde o datetime especificado.
         
         Args:
-            dt: The datetime
+            dt: O datetime
             
         Returns:
-            A string representing the elapsed time (e.g., '2 hours ago', '3 days ago')
+            Uma string representando o tempo decorrido (ex: '2 horas atrás', '3 dias atrás')
         """
         now = datetime.now()
         delta = now - dt
         
-        # Calculate the elapsed time in different units
+        # Calcula o tempo decorrido em diferentes unidades
         seconds = delta.total_seconds()
         minutes = seconds // 60
         hours = minutes // 60

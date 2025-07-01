@@ -1,3 +1,5 @@
+# Este arquivo torna o diretório components um pacote Python
+
 from presentation.components.base_component import BaseComponent
 from presentation.components.note_list_component import NoteListComponent
 from presentation.components.folder_tree_component import FolderTreeComponent
